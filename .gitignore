@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+/.vscode/*
+/bin/*
+/images/*
+/assets/*
+*.png
+/.vs/*
+*.user
+/x64/*
+*.tmp
+/html/*
+/latex/*
