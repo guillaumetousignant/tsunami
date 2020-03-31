@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
-#include "entities/MeshGeometry_t.h"
+#include "entities/MeshGeometryUnstructured_t.h"
 
 #define PI 3.141592653589793238463
 #define EPSILON 0.00000001
@@ -16,12 +16,12 @@ TriangleUnstructured_t::TriangleUnstructured_t(APTracer::Entities::Material_t *m
 
     const APTracer::Entities::TransformMatrix_t transform_norm = transformation_->transformDir();
 
-    points_[0] = transformation_->multVec(geom_->v_[3 * index_]);
-    points_[1] = transformation_->multVec(geom_->v_[3 * index_ + 1]);
-    points_[2] = transformation_->multVec(geom_->v_[3 * index_ + 2]);
-    normals_[0] = transform_norm.multDir(geom_->vn_[3 * index_]);
-    normals_[1] = transform_norm.multDir(geom_->vn_[3 * index_ + 1]);
-    normals_[2] = transform_norm.multDir(geom_->vn_[3 * index_ + 2]);
+    points_[0] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_]]);
+    points_[1] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_ + 1]]);
+    points_[2] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_ + 2]]);
+    normals_[0] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_]]]);
+    normals_[1] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_ + 1]]]);
+    normals_[2] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_ + 2]]]);
 
     v0v1_ = points_[1] - points_[0];
     v0v2_ = points_[2] - points_[0];
@@ -32,12 +32,12 @@ TriangleUnstructured_t::~TriangleUnstructured_t(){}
 void TriangleUnstructured_t::update() {
     const APTracer::Entities::TransformMatrix_t transform_norm = transformation_->transformDir();
 
-    points_[0] = transformation_->multVec(geom_->v_[3 * index_]);
-    points_[1] = transformation_->multVec(geom_->v_[3 * index_ + 1]);
-    points_[2] = transformation_->multVec(geom_->v_[3 * index_ + 2]);
-    normals_[0] = transform_norm.multDir(geom_->vn_[3 * index_]);
-    normals_[1] = transform_norm.multDir(geom_->vn_[3 * index_ + 1]);
-    normals_[2] = transform_norm.multDir(geom_->vn_[3 * index_ + 2]);
+    points_[0] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_]]);
+    points_[1] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_ + 1]]);
+    points_[2] = transformation_->multVec(geom_->points_[geom_->elements_[3 * index_ + 2]]);
+    normals_[0] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_]]]);
+    normals_[1] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_ + 1]]]);
+    normals_[2] = transform_norm.multDir(geom_->normals_[geom_->elements_[3 * index_ + 2]]]);
 
     v0v1_ = points_[1] - points_[0];
     v0v2_ = points_[2] - points_[0];
