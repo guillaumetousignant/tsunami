@@ -14,7 +14,11 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(tsunami PUBLIC optimized OpenMP::OpenMP_CXX)
 endif()
 
+if(DEFINED ENV{ANOTHER_PATH_TRACER_DIR})
+    list(APPEND CMAKE_PREFIX_PATH $ENV{ANOTHER_PATH_TRACER_DIR})
+endif()
 
+find_package(APTracer REQUIRED)
 
 target_link_libraries(tsunami PRIVATE APTracer)
 target_compile_features(tsunami PRIVATE cxx_std_11)
