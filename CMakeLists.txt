@@ -8,7 +8,9 @@ project(tsunami VERSION 1.0.0 LANGUAGES C CXX)
 
 add_executable(tsunami 
     src/main.cpp
-    src/entities/MeshGeometryUnstructured_t.cpp)
+    src/entities/MeshGeometryUnstructured_t.cpp
+    src/shapes/MeshUnstructured_t.cpp
+    src/shapes/TriangleUnstructured_t.cpp)
 
 find_package(OpenMP)
 
