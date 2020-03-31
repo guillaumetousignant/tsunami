@@ -6,7 +6,9 @@ endif()
 
 project(tsunami VERSION 1.0.0 LANGUAGES C CXX)
 
-add_executable(tsunami src/main.cpp)
+add_executable(tsunami 
+    src/main.cpp
+    src/entities/MeshGeometryUnstructured_t.cpp)
 
 find_package(OpenMP)
 
@@ -20,8 +22,10 @@ endif()
 
 find_package(APTracer REQUIRED)
 
-target_include_directories(tsunami PRIVATE
-  $ENV{ANOTHER_PATH_TRACER_DIR}/include> # Should not be needed but what do I know
+target_include_directories(tsunami 
+    PRIVATE
+        include/
+        $ENV{ANOTHER_PATH_TRACER_DIR}/include/ # Should not be needed but what do I know
 )
 
 target_link_libraries(tsunami PRIVATE APTracer)

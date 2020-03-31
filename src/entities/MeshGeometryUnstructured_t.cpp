@@ -206,7 +206,7 @@ void MeshGeometryUnstructured_t::computeNodeToFace() {
 void MeshGeometryUnstructured_t::computeNormals() {
     for (unsigned int i = 0; i < n_points_; ++i) {
         Vec3f normal;
-        for (unsigned int j = point_to_elements_[i].size()) {
+        for (unsigned int j = 0; j < point_to_elements_[i].size(); ++j) {
             normal += (points_[elements_[3 * i + 1]] - points_[elements_[3 * i]]).cross(points_[elements_[3 * i + 2]] - points_[elements_[3 * i]]).normalize_inplace();
         }
         normals_[i] = normal.normalize();
