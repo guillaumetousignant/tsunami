@@ -11,7 +11,7 @@
 
 using APTracer::Entities::Vec3f;
 
-TriangleUnstructured_t::TriangleUnstructured_t(APTracer::Entities::Material_t *material, APTracer::Entities::TransformMatrix_t *transform_matrix, APTracer::Entities::MeshGeometry_t* geom, unsigned int index) 
+TriangleUnstructured_t::TriangleUnstructured_t(APTracer::Entities::Material_t *material, APTracer::Entities::TransformMatrix_t *transform_matrix, MeshGeometryUnstructured_t* geom, unsigned int index) 
     : Shape_t(material, transform_matrix), geom_(geom), index_(index) {
 
     const APTracer::Entities::TransformMatrix_t transform_norm = transformation_->transformDir();
@@ -25,20 +25,6 @@ TriangleUnstructured_t::TriangleUnstructured_t(APTracer::Entities::Material_t *m
 
     v0v1_ = points_[1] - points_[0];
     v0v2_ = points_[2] - points_[0];
-
-    const double tuv0v1[2] = {geom->vt_[3 * index_ + 1][0] - geom->vt_[3 * index_][0], geom->vt_[3 * index_ + 1][1] - geom->vt_[3 * index_][1]};
-    const double tuv0v2[2] = {geom->vt_[3 * index_ + 2][0] - geom->vt_[3 * index_][0], geom->vt_[3 * index_ + 2][1] - geom->vt_[3 * index_][1]};    
-
-    const double invdet = 1.0/(tuv0v1[0] * tuv0v2[1] - tuv0v1[1] * tuv0v2[0]);
-    if (std::isfinite(invdet)){
-        tuv_to_world_[0] = invdet * -tuv0v2[0];
-        tuv_to_world_[1] = invdet * tuv0v1[0];
-    }
-    else {
-        tuv_to_world_[0] = 1.0;
-        tuv_to_world_[1] = 0.0;
-    }
-    tangent_vec_ = v0v1_ * tuv_to_world_[0] + v0v2_ * tuv_to_world_[1];
 }
 
 TriangleUnstructured_t::~TriangleUnstructured_t(){}
@@ -55,8 +41,6 @@ void TriangleUnstructured_t::update() {
 
     v0v1_ = points_[1] - points_[0];
     v0v2_ = points_[2] - points_[0];
-
-    tangent_vec_ = v0v1_ * tuv_to_world_[0] + v0v2_ * tuv_to_world_[1];
 }
 
 bool TriangleUnstructured_t::intersection(const APTracer::Entities::Ray_t &ray, double &t, double (&uv)[2]) const {
@@ -106,8 +90,8 @@ void TriangleUnstructured_t::normaluv(const APTracer::Entities::Ray_t &ray, cons
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
         distance[0] * normals_[0][2] + distance[1] * normals_[1][2] + distance[2] * normals_[2][2]);
     // Matrix multiplication, optimise.
-    tuv[0] = distance[0] * geom_->vt_[3*index_][0] + distance[1] * geom_->vt_[3*index_ + 1][0] + distance[2] * geom_->vt_[3*index_ + 2][0];
-    tuv[1] = distance[0] * geom_->vt_[3*index_][1] + distance[1] * geom_->vt_[3*index_ + 1][1] + distance[2] * geom_->vt_[3*index_ + 2][1];
+    tuv[0] = 0.0; // Not used
+    tuv[1] = 0.0; // Not used
 }
 
 void TriangleUnstructured_t::normal(const APTracer::Entities::Ray_t &ray, const double (&uv)[2], Vec3f &normalvec) const {
@@ -124,10 +108,10 @@ void TriangleUnstructured_t::normal_uv_tangent(const APTracer::Entities::Ray_t &
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
         distance[0] * normals_[0][2] + distance[1] * normals_[1][2] + distance[2] * normals_[2][2]);
     // Matrix multiplication, optimise.
-    tuv[0] = distance[0] * geom_->vt_[3*index_][0] + distance[1] * geom_->vt_[3*index_ + 1][0] + distance[2] * geom_->vt_[3*index_ + 2][0];
-    tuv[1] = distance[0] * geom_->vt_[3*index_][1] + distance[1] * geom_->vt_[3*index_ + 1][1] + distance[2] * geom_->vt_[3*index_ + 2][1];
+    tuv[0] = 0.0; // Not used
+    tuv[1] = 0.0; // Not used
 
-    tangentvec = tangent_vec_.cross(normalvec).normalize_inplace();
+    tangentvec = Vec3f(0.0, 0.0, 1.0);
 }  
 
 void TriangleUnstructured_t::normal_face(const APTracer::Entities::Ray_t &ray, Vec3f &normalvec) const{

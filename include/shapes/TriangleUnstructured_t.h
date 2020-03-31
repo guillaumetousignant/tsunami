@@ -11,6 +11,8 @@ namespace APTracer { namespace Entities {
     class MeshGeometry_t;
 }}
 
+class MeshGeometryUnstructured_t;
+
 using APTracer::Entities::Ray_t;
 using APTracer::Entities::Vec3f;
 using APTracer::Entities::Material_t;
@@ -20,17 +22,15 @@ using APTracer::Entities::MeshGeometry_t;
 
 class TriangleUnstructured_t final : public Shape_t{
     public:
-        TriangleUnstructured_t(Material_t *material, TransformMatrix_t *transform_matrix, MeshGeometry_t* geom, unsigned int index);
+        TriangleUnstructured_t(Material_t *material, TransformMatrix_t *transform_matrix, MeshGeometryUnstructured_t* geom, unsigned int index);
         virtual ~TriangleUnstructured_t() final;
 
         Vec3f points_[3];
         Vec3f normals_[3];
         Vec3f v0v1_;
         Vec3f v0v2_;
-        MeshGeometry_t* geom_;
+        MeshGeometryUnstructured_t* geom_;
         unsigned int index_;
-        double tuv_to_world_[2];
-        Vec3f tangent_vec_; // Points up
 
         virtual void update() final;
         virtual bool intersection(const Ray_t &ray, double &t, double (&uv)[2]) const final; 
