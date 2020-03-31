@@ -20,7 +20,7 @@ endif()
 
 find_package(APTracer REQUIRED)
 
-target_include_directories(APTracer PRIVATE
+target_include_directories(tsunami PRIVATE
   $ENV{ANOTHER_PATH_TRACER_DIR}/include> # Should not be needed but what do I know
 )
 
