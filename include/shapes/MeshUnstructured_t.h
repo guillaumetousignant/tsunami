@@ -1,5 +1,5 @@
-#ifndef MESH_T_H
-#define MESH_T_H
+#ifndef MESHUNSTRUCTURED_T_H
+#define MESHUNSTRUCTURED_T_H
 
 #include "entities/Vec3f.h"
 
