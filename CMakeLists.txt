@@ -20,6 +20,10 @@ endif()
 
 find_package(APTracer REQUIRED)
 
+target_include_directories(APTracer PRIVATE
+  $ENV{ANOTHER_PATH_TRACER_DIR}/include> # Should not be needed but what do I know
+)
+
 target_link_libraries(tsunami PRIVATE APTracer)
 target_compile_features(tsunami PRIVATE cxx_std_11)
 
