@@ -44,3 +44,5 @@
 /latex/*
 /docs/*
 /build/*
+/meshes/*
+/data/*
