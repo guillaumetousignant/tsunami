@@ -8,7 +8,6 @@
 namespace APTracer { namespace Entities {
     class TransformMatrix_t;
     class Material_t;
-    class MeshGeometry_t;
 }}
 
 class MeshGeometryUnstructured_t;
@@ -18,7 +17,6 @@ using APTracer::Entities::Vec3f;
 using APTracer::Entities::Material_t;
 using APTracer::Entities::TransformMatrix_t;
 using APTracer::Entities::Shape_t;
-using APTracer::Entities::MeshGeometry_t;
 
 class TriangleUnstructured_t final : public Shape_t{
     public:
