@@ -93,8 +93,11 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
             std::cerr << "Error: expected token '5', found '" << token << "'. Exiting." << std::endl;
             return;
         }
-
-        liness2 >> elements_[3 * i] >> elements_[3 * i + 1] >> elements_[3 * i + 2];
+        unsigned int val0, val1, val2;
+        liness2 >> val0 >> val1 >> val2;
+        elements_[3 * i] = val0 - 1;
+        elements_[3 * i + 1] = val1 - 1;
+        elements_[3 * i + 2] = val2 - 1;
     }
 
     unsigned int n_markers;
@@ -146,7 +149,10 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
                     return;
                 }
 
-                liness6 >> wall_[2 * j] >> wall_[2 * j + 1];
+                unsigned int val0, val1;
+                liness6 >> val0 >> val1;
+                wall_[2 * j] = val0 - 1;
+                wall_[2 * j + 1] = val1 - 1;
             }
         }
         else if (type == "farfield") {
@@ -173,7 +179,10 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
                     return;
                 }
 
-                liness6 >> farfield_[2 * j] >> farfield_[2 * j+ 1];
+                unsigned int val0, val1;
+                liness6 >> val0 >> val1;
+                farfield_[2 * j] = val0 - 1;
+                farfield_[2 * j + 1] = val1 - 1;
             }
         }
         else {
@@ -190,7 +199,7 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
 }
 
 void MeshGeometryUnstructured_t::computeNodeToFace() {
-    std::vector<std::vector<unsigned int>> point_to_elements_(n_points_);
+    point_to_elements_ = std::vector<std::vector<unsigned int>>(n_points_, std::vector<unsigned int>());
     for (unsigned int i = 0; i < n_points_; ++i){
         for (unsigned int j = 0; j < n_elements_; ++j) {
             for (unsigned int k = 0; k < 3; ++k){
@@ -206,9 +215,44 @@ void MeshGeometryUnstructured_t::computeNodeToFace() {
 void MeshGeometryUnstructured_t::computeNormals() {
     for (unsigned int i = 0; i < n_points_; ++i) {
         Vec3f normal;
-        for (unsigned int j = 0; j < point_to_elements_[i].size(); ++j) {
-            normal += (points_[elements_[3 * i + 1]] - points_[elements_[3 * i]]).cross(points_[elements_[3 * i + 2]] - points_[elements_[3 * i]]).normalize_inplace();
+        std::vector<unsigned int> point_elements = point_to_elements_[i];
+        for (unsigned int j = 0; j < point_elements.size(); ++j) {
+            unsigned int element_index = point_elements[j];
+            unsigned int point_index0 = elements_[3 * element_index];
+            unsigned int point_index1 = elements_[3 * element_index + 1];
+            unsigned int point_index2 = elements_[3 * element_index + 2];
+            Vec3f point0 = points_[point_index0];
+            Vec3f point1 = points_[point_index1];
+            Vec3f point2 = points_[point_index2];
+
+            
+
+            normal += (point1 - point0).cross(point2 - point0).normalize_inplace();
+            
+            //normal += (points_[elements_[3 * point_to_elements_[i][j] + 1]] - points_[elements_[3 * point_to_elements_[i][j]]]).cross(points_[elements_[3 * point_to_elements_[i][j] + 2]] - points_[elements_[3 * point_to_elements_[i][j]]]).normalize_inplace(); // wow
         }
         normals_[i] = normal.normalize();
+    }
+}
+
+void MeshGeometryUnstructured_t::verify() {
+    std::cout << "Tere are " << n_points_ << " points." << std::endl;
+    for (unsigned int i = 0; i < n_points_; ++i) {
+        std::cout << "    " << i << "    " << points_[i] << std::endl;
+    }
+
+    std::cout << std::endl << "Tere are " << n_elements_ << " elements." << std::endl;
+    for (unsigned int i = 0; i < n_elements_; ++i) {
+        std::cout << "    " << i << "    " << elements_[3 * i] << "    " << elements_[3 * i + 1] << "    " << elements_[3 * i + 2] << std::endl;
+    }
+
+    std::cout << std::endl << "Tere are " << n_wall_ << " wall elements." << std::endl;
+    for (unsigned int i = 0; i < n_wall_; ++i) {
+        std::cout << "    " << i << "    " << wall_[2 * i] << "    " << wall_[2 * i + 1] << std::endl;
+    }
+
+    std::cout << std::endl << "Tere are " << n_farfield_ << " farfield elements." << std::endl;
+    for (unsigned int i = 0; i < n_farfield_; ++i) {
+        std::cout << "    " << i << "    " << farfield_[2 * i] << "    " << farfield_[2 * i + 1] << std::endl;
     }
 }

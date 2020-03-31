@@ -25,6 +25,7 @@ class MeshGeometryUnstructured_t{
         void readSU2(const std::string &filename);
         void computeNodeToFace();
         void computeNormals();
+        void verify();
 };
 
 #endif
