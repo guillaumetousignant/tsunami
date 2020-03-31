@@ -10,7 +10,8 @@ int main(int argc, char **argv){
     std::string mesh_file = argv[1];
     std::string data_file = argv[2];
 
-    MeshGeometryUnstructured_t mesh(mesh_file);
+    MeshGeometryUnstructured_t water_mesh(mesh_file);
+    MeshGeometryUnstructured_t sand_mesh(mesh_file);
 
     return 0;
 }
