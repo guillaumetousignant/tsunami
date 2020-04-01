@@ -195,7 +195,7 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
     normals_ = new Vec3f[n_points_];
 
     computeNodeToFace();
-    computeNormals();
+    computeNormals(n_points_);
 }
 
 void MeshGeometryUnstructured_t::computeNodeToFace() {
@@ -212,8 +212,8 @@ void MeshGeometryUnstructured_t::computeNodeToFace() {
     }
 }
 
-void MeshGeometryUnstructured_t::computeNormals() {
-    for (unsigned int i = 0; i < n_points_; ++i) {
+void MeshGeometryUnstructured_t::computeNormals(unsigned int n_points) {
+    for (unsigned int i = 0; i < n_points; ++i) {
         Vec3f normal;
         std::vector<unsigned int> point_elements = point_to_elements_[i];
         for (unsigned int j = 0; j < point_elements.size(); ++j) {
@@ -224,8 +224,6 @@ void MeshGeometryUnstructured_t::computeNormals() {
             Vec3f point0 = points_[point_index0];
             Vec3f point1 = points_[point_index1];
             Vec3f point2 = points_[point_index2];
-
-            
 
             normal += (point1 - point0).cross(point2 - point0).normalize_inplace();
             
