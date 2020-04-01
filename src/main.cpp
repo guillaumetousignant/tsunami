@@ -28,9 +28,11 @@ int main(int argc, char **argv){
     }
 
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
+    APTracer::Materials::NonAbsorber_t air_scatterer;
 
-    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.4, 10, &water_scatterer);
+    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.0);
+    APTracer::Materials::Transparent_t air(0, &air_scatterer);
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
@@ -52,8 +54,21 @@ int main(int argc, char **argv){
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
     scene.add(sand_mesh.triangles_, sand_mesh.n_tris_);
 
+    APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1800, 1200);
+
     APTracer::Entities::TransformMatrix_t camera_transform;
-    APTracer::Cameras::Cam_t camera(&camera_transform, );
+    double fov[2] = {2.0/3.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
+    unsigned int subpix[2] = {1, 1};
+    std::list<Medium_t*> medium_list = {&air, &air};
+    APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 8, 1.0);
+    camera.transformation_->translate(Vec3f(0.0, -10.0, 0.0));
+    camera.update();
+
+    scene.build_acc();
+
+    APTracer::Entities::OpenGLRenderer_t opengl_renderer(&scene, &camera, &imgbuffer);
+    opengl_renderer.initialise();
+    opengl_renderer.render();
 
     return 0;
 }
