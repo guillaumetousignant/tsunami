@@ -27,6 +27,7 @@ int main(int argc, char **argv){
         sand_mesh_geometry.points_[i][2] = -sand_mesh_geometry.points_[i][2];
     }
 
+    // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
@@ -61,7 +62,8 @@ int main(int argc, char **argv){
     unsigned int subpix[2] = {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 8, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, -100.0, 0.0));
+    camera.transformation_->translate(Vec3f(0.0, -2000.0, 0.0));
+    camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
     camera.update();
 
     scene.build_acc();
