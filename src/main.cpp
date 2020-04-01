@@ -115,19 +115,19 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
 
     // Adds two elements per boundary, created with the new points
     for (unsigned int i = 0; i < mesh_geometry->n_farfield_ - 1; ++i){
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i] = mesh_geometry->farfield_[2 * i];
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 1] = mesh_geometry->n_points_ + i;
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 3] = mesh_geometry->farfield_[2 * i + 1];
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 4] = mesh_geometry->farfield_[2 * i];
-        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 5] = mesh_geometry->n_points_ + i + 1;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i] = mesh_geometry->farfield_[2 * i];
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 1] = mesh_geometry->n_points_ + i;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 3] = mesh_geometry->farfield_[2 * i + 1];
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 4] = mesh_geometry->farfield_[2 * i];
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 5] = mesh_geometry->n_points_ + i + 1;
     }
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_points_ + (mesh_geometry->n_farfield_ - 1);
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_points_;
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 3] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1) + 1];
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 4] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
-    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_points_ ;
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_points_ + (mesh_geometry->n_farfield_ - 1);
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_points_;
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 3] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1) + 1];
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 4] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
+    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_points_ ;
 
     std::swap(mesh_geometry->points_, new_points);
     std::swap(mesh_geometry->elements_, new_elements);
