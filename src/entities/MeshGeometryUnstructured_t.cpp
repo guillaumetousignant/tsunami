@@ -29,6 +29,10 @@ MeshGeometryUnstructured_t::~MeshGeometryUnstructured_t(){
         delete [] elements_;
     }
 
+    if (element_normals_ != nullptr) {
+        delete [] element_normals_;
+    }
+
     if (normals_ != nullptr){
         delete [] normals_;
     }
@@ -84,7 +88,9 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
         return;
     }
 
+    n_normals_ = n_elements_;
     elements_ = new unsigned int[3 * n_elements_];
+    element_normals_ = new unsigned int[3 * n_elements_];
     for (unsigned int i = 0; i < n_elements_; ++i) {
         std::getline(meshfile, line);
         std::istringstream liness2(line);
@@ -98,6 +104,9 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
         elements_[3 * i] = val0 - 1;
         elements_[3 * i + 1] = val1 - 1;
         elements_[3 * i + 2] = val2 - 1;
+        element_normals_[3 * i] = elements_[3 * i];
+        element_normals_[3 * i + 1] = elements_[3 * i + 1];
+        element_normals_[3 * i + 2] = elements_[3 * i + 2];
     }
 
     unsigned int n_markers;
