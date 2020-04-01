@@ -30,8 +30,8 @@ int main(int argc, char **argv){
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
-    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
-    APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.0);
+    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
+    APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
     APTracer::Materials::Transparent_t air(0, &air_scatterer);
 
     APTracer::Entities::TransformMatrix_t water_transform;
@@ -42,13 +42,13 @@ int main(int argc, char **argv){
 
     APTracer::Entities::TransformMatrix_t sun_transform;
 
-    APTracer::Entities::DirectionalLight_t sun(Vec3f(0.0, 0.0, 0.0), &sun_transform);
+    APTracer::Entities::DirectionalLight_t sun(Vec3f(10.0, 10.0, 8.0), &sun_transform);
     sun.transformation_->scale(0.95);
     sun.transformation_->rotateZ(-0.7854);
     sun.transformation_->rotateX(-1.1781);
     sun.update();
 
-    APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.7176, 0.9569, 1.0), &sun);
+    APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
 
     APTracer::Entities::Scene_t scene;
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
@@ -61,7 +61,7 @@ int main(int argc, char **argv){
     unsigned int subpix[2] = {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 8, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, -10.0, 0.0));
+    camera.transformation_->translate(Vec3f(0.0, -100.0, 0.0));
     camera.update();
 
     scene.build_acc();
