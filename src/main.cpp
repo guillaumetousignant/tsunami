@@ -3,9 +3,14 @@
 #include "shapes/MeshUnstructured_t.h"
 #include "entities/RandomGenerator_t.h"
 
+#include <limits>
+#include <cmath>
 #include <string>
 
 using APTracer::Entities::Vec3f;
+
+double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry);
+void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height);
 
 int main(int argc, char **argv){
     if (argc < 3) {
@@ -17,15 +22,21 @@ int main(int argc, char **argv){
     MeshGeometryUnstructured_t water_mesh_geometry(mesh_file);
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
 
+    unsigned int n_grid_points = water_mesh_geometry.n_points_;
+
     // Setting the water height to 0 for now
-    for (unsigned int i = 0; i < water_mesh_geometry.n_points_; ++i) {
+    for (unsigned int i = 0; i < n_grid_points; ++i) {
         water_mesh_geometry.points_[i][2] = 0.0;
     }
 
     // Negating the sand height
-    for (unsigned int i = 0; i < sand_mesh_geometry.n_points_; ++i) {
+    for (unsigned int i = 0; i < n_grid_points; ++i) {
         sand_mesh_geometry.points_[i][2] = -sand_mesh_geometry.points_[i][2];
     }
+
+    double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
+
+    extrude_farfield(&sand_mesh_geometry, 2 * max_depth);
 
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
@@ -73,4 +84,56 @@ int main(int argc, char **argv){
     opengl_renderer.render();
 
     return 0;
+}
+
+double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry) {
+    double depth = std::numeric_limits<double>::infinity();
+    for (unsigned int i = 0; i < mesh_geometry->n_points_; ++i) {
+        depth = std::min(depth, mesh_geometry->points_[i][2]);
+    }
+    return depth;
+}
+
+void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) {
+    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_farfield_ * 2;
+
+    APTracer::Entities::Vec3f* new_points = new Vec3f[new_n_points];
+    for (unsigned int i = 0; i < mesh_geometry->n_points_; ++i) {
+        new_points[i] = mesh_geometry->points_[i];
+    }
+    unsigned int* new_elements = new unsigned int[3 * new_n_elements];
+    for (unsigned int i = 0; i < mesh_geometry->n_elements_; ++i) {
+        new_elements[3 * i] = mesh_geometry->elements_[3 * i];
+        new_elements[3 * i + 1] = mesh_geometry->elements_[3 * i + 1];
+        new_elements[3 * i + 2] = mesh_geometry->elements_[3 * i + 2];
+    }
+
+    for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i){
+        new_points[i + mesh_geometry->n_points_] = mesh_geometry->points_[mesh_geometry->farfield_[2 * i]] + Vec3f(0.0, 0.0, height);
+    }
+
+    // Adds two elements per boundary, created with the new points
+    for (unsigned int i = 0; i < mesh_geometry->n_farfield_ - 1; ++i){
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i] = mesh_geometry->farfield_[2 * i];
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 1] = mesh_geometry->n_points_ + i;
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 3] = mesh_geometry->farfield_[2 * i + 1];
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 4] = mesh_geometry->farfield_[2 * i];
+        new_elements[3 * mesh_geometry->n_elements_ * 6 * i + 5] = mesh_geometry->n_points_ + i + 1;
+    }
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_points_ + (mesh_geometry->n_farfield_ - 1);
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_points_;
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 3] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1) + 1];
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 4] = mesh_geometry->farfield_[2 * (mesh_geometry->n_farfield_ - 1)];
+    new_elements[3 * mesh_geometry->n_elements_ * 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_points_ ;
+
+    std::swap(mesh_geometry->points_, new_points);
+    std::swap(mesh_geometry->elements_, new_elements);
+    mesh_geometry->n_points_ = new_n_points;
+    mesh_geometry->n_elements_ = new_n_elements;
+
+    delete [] new_points;
+    delete [] new_elements;
 }
