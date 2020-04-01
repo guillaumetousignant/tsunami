@@ -14,8 +14,8 @@ int main(int argc, char **argv){
     MeshGeometryUnstructured_t water_mesh_geometry(mesh_file);
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
 
-    ReflectiveRefractive_t water();
-    Diffuse_t sand();
+    APTracer::Materials::ReflectiveRefractive_t water();
+    APTracer::Materials::Diffuse_t sand();
 
     MeshUnstructured_t water_mesh(&water, new TransformMatrix_t(), &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, new TransformMatrix_t(), &sand_mesh_geometry);
