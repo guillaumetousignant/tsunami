@@ -426,5 +426,6 @@ void openGL_accumulate() {
     Rendering::time += Rendering::delta_time;
     std::cout << "t = " << Rendering::time << std::endl;
     timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
+    Rendering::renderer->resetDisplay();
     Rendering::renderer->accumulate();
 }
