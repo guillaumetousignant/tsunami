@@ -149,16 +149,16 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
         new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i] = mesh_geometry->n_normals_ + i;
         new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 1] = mesh_geometry->n_normals_ + i;
         new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 2] = mesh_geometry->n_normals_ + i + 1;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 3] = mesh_geometry->n_normals_ + i;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 4] = mesh_geometry->n_normals_ + i + 1;
+        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 3] = mesh_geometry->n_normals_ + i + 1;
+        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 4] = mesh_geometry->n_normals_ + i;
         new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 5] = mesh_geometry->n_normals_ + i + 1;
     }
     new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->n_normals_ + (mesh_geometry->n_farfield_ - 1);
     new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_normals_ + (mesh_geometry->n_farfield_ - 1);
     new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_normals_;
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 3] = mesh_geometry->n_normals_ + (mesh_geometry->n_farfield_ - 1);
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 4] = mesh_geometry->n_normals_;
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_normals_ ;
+    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 3] = mesh_geometry->n_normals_;
+    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 4] = mesh_geometry->n_normals_ + (mesh_geometry->n_farfield_ - 1);
+    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_normals_;
 
     std::swap(mesh_geometry->points_, new_points);
     std::swap(mesh_geometry->normals_, new_normals);
