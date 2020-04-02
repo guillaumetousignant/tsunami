@@ -22,12 +22,13 @@ class MeshGeometryUnstructured_t{
         unsigned int* wall_;
         unsigned int* farfield_;
         std::vector<std::vector<unsigned int>> point_to_elements_;
+
+        void computeNormals(unsigned int n_points);
+        void verify();
     
     private:
         void readSU2(const std::string &filename);
         void computeNodeToFace();
-        void computeNormals(unsigned int n_points);
-        void verify();
 };
 
 #endif
