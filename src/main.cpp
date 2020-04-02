@@ -11,6 +11,7 @@
 #include <sstream>
 #include <complex>
 #include <iomanip>
+#include <chrono>
 
 using APTracer::Entities::Vec3f;
 
@@ -31,7 +32,6 @@ namespace Rendering {
     unsigned int n_points = 0;
     unsigned int n_elements = 0;
     double omega = 0.0;
-    unsigned int n_iter = 0;
     unsigned int n_timestep = 0;
     unsigned int write_interval = 100;
 }
@@ -72,7 +72,7 @@ int main(int argc, char **argv){
     std::vector<std::complex<double>> eta = get_eta(data_file, amplitude, omega);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 64);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
     APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
@@ -427,10 +427,15 @@ void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mes
 }
 
 void openGL_accumulate() {
-    ++Rendering::n_iter;
-    std::cout << "    Iterarion " << Rendering::n_iter << std::endl;
+    auto t_start = std::chrono::high_resolution_clock::now();
     Rendering::renderer->accumulate();
-    if (Rendering::n_iter == Rendering::write_interval) {
+    auto t_end = std::chrono::high_resolution_clock::now();
+
+    std::cout << "Iteration " << Rendering::renderer->n_iter_gl_ << " done in " 
+        << std::chrono::duration<double, std::milli>(t_end-t_start).count()/1000.0 
+        << "s." << std::endl;
+    
+    if (Rendering::renderer->n_iter_gl_ == Rendering::write_interval) {
         ++Rendering::n_timestep;
         std::cout << "Timestep " << Rendering::n_timestep << ", t = " << Rendering::time << std::endl;
         std::ostringstream oss;
