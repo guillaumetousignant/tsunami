@@ -6,12 +6,17 @@
 #include <limits>
 #include <cmath>
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <complex>
 
 using APTracer::Entities::Vec3f;
 
 double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry);
 void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height);
 void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height);
+std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega);
 
 int main(int argc, char **argv){
     if (argc < 3) {
@@ -41,6 +46,10 @@ int main(int argc, char **argv){
     extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
+
+    double amplitude;
+    double omega;
+    std::vector<std::complex<double>> eta = get_eta(data_file, amplitude, omega);
 
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 64);
@@ -310,4 +319,63 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     delete [] new_normals;
     delete [] new_elements;
     delete [] new_element_normals;
+}
+
+std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega) {
+    std::string line;
+    std::string token;
+    double n_points;
+
+    std::ifstream meshfile(filename);
+    if (!meshfile.is_open()) {
+        std::cerr << "Error: file '" << filename << "' could not be opened. Exiting." << std::endl;
+        return;
+    }
+
+    std::getline(meshfile, line);
+    std::istringstream liness(line);
+    liness >> token;
+    if (token == "AMPLITUDE="){
+        liness >> amplitude;
+    }
+    else {
+        std::cerr << "Error: expected marker 'AMPLITUDE=', found '" << token << "'. Exiting." << std::endl;
+        return;
+    }
+
+    std::getline(meshfile, line);
+    std::istringstream liness2(line);
+    liness2 >> token;
+    if (token == "OMEGA="){
+        liness2 >> omega;
+    }
+    else {
+        std::cerr << "Error: expected marker 'OMEGA=', found '" << token << "'. Exiting." << std::endl;
+        return;
+    }
+
+    std::getline(meshfile, line);
+    std::getline(meshfile, line);
+    std::getline(meshfile, line);
+    std::istringstream liness3(line);
+    liness3 >> token;
+    if (token == "NPOIN="){
+        liness3 >> n_points;
+    }
+    else {
+        std::cerr << "Error: expected marker 'NPOIN=', found '" << token << "'. Exiting." << std::endl;
+        return;
+    }
+
+    std::vector<std::complex<double>> eta(n_points, std::complex<double>(0.0, 0.0));
+    for (unsigned int i = 0; i < n_points; ++i) {
+        std::getline(meshfile, line);
+        std::istringstream liness4(line);
+        double val0, val1;
+        liness4 >> val0 >> val1;
+
+        eta[i] = std::complex<double>(val0, val1);
+    }
+
+    meshfile.close();
 }
