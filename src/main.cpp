@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <complex>
+#include <iomanip>
 
 using APTracer::Entities::Vec3f;
 
@@ -30,6 +31,8 @@ namespace Rendering {
     unsigned int n_points = 0;
     unsigned int n_elements = 0;
     double omega = 0.0;
+    unsigned int n_iter = 0;
+    unsigned int write_interval = 100;
 }
 
 
@@ -423,9 +426,15 @@ void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mes
 }
 
 void openGL_accumulate() {
-    Rendering::time += Rendering::delta_time;
-    std::cout << "t = " << Rendering::time << std::endl;
-    timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
-    Rendering::renderer->resetDisplay();
+    ++Rendering::n_iter;
     Rendering::renderer->accumulate();
+    if (Rendering::n_iter == Rendering::write_interval) {
+        std::cout << "t = " << Rendering::time << std::endl;
+        std::ostringstream oss;
+        oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_iter << ".png";
+        Rendering::renderer->camera_->write(oss.str());
+        Rendering::time += Rendering::delta_time;
+        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
+        Rendering::renderer->resetDisplay();
+    }  
 }
