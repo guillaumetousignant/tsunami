@@ -329,7 +329,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     std::ifstream meshfile(filename);
     if (!meshfile.is_open()) {
         std::cerr << "Error: file '" << filename << "' could not be opened. Exiting." << std::endl;
-        return;
+        return std::vector<std::complex<double>>();
     }
 
     std::getline(meshfile, line);
@@ -340,7 +340,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     }
     else {
         std::cerr << "Error: expected marker 'AMPLITUDE=', found '" << token << "'. Exiting." << std::endl;
-        return;
+        return std::vector<std::complex<double>>();
     }
 
     std::getline(meshfile, line);
@@ -351,7 +351,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     }
     else {
         std::cerr << "Error: expected marker 'OMEGA=', found '" << token << "'. Exiting." << std::endl;
-        return;
+        return std::vector<std::complex<double>>();
     }
 
     std::getline(meshfile, line);
@@ -364,7 +364,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     }
     else {
         std::cerr << "Error: expected marker 'NPOIN=', found '" << token << "'. Exiting." << std::endl;
-        return;
+        return std::vector<std::complex<double>>();
     }
 
     std::vector<std::complex<double>> eta(n_points, std::complex<double>(0.0, 0.0));
