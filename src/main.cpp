@@ -39,7 +39,7 @@ int main(int argc, char **argv){
     extrude_farfield(&water_mesh_geometry, max_depth);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.05, 0.4), 1000, 10);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
     APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
