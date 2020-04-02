@@ -125,6 +125,7 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
         new_element_normals[3 * i + 2] = mesh_geometry->element_normals_[3 * i + 2];
     }
 
+    // New stuff
     for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i){
         new_points[i + mesh_geometry->n_points_] = mesh_geometry->points_[mesh_geometry->farfield_[2 * i]] + Vec3f(0.0, 0.0, height);
     }
@@ -205,6 +206,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
         new_element_normals[3 * i + 2] = mesh_geometry->element_normals_[3 * i + 2];
     }
 
+    // Making new stuff
     for (unsigned int i = 0; i < mesh_geometry->n_wall_; ++i){
         new_points[i + mesh_geometry->n_points_] = mesh_geometry->points_[mesh_geometry->wall_[2 * i]] + Vec3f(0.0, 0.0, height);
     }
@@ -258,8 +260,10 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     delete [] new_element_normals;
 }
 
-void close_wall(MeshGeometryUnstructured_t* mesh_geometry) {
+void close_farfield(MeshGeometryUnstructured_t* mesh_geometry) {
     unsigned int new_n_points = mesh_geometry->n_points_ + 1;
     unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_farfield_;
     unsigned int new_n_normals = mesh_geometry->n_normals_ + 1;
+
+
 }
