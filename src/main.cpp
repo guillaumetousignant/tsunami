@@ -378,4 +378,6 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     }
 
     meshfile.close();
+
+    return eta;
 }
