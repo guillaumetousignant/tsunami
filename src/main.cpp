@@ -28,11 +28,13 @@ int main(int argc, char **argv){
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         water_mesh_geometry.points_[i][2] = 0.0;
     }
+    water_mesh_geometry.computeNormals(n_grid_points);
 
     // Negating the sand height
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         sand_mesh_geometry.points_[i][2] = -sand_mesh_geometry.points_[i][2];
     }
+    sand_mesh_geometry.computeNormals(n_grid_points);
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
     extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
