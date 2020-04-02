@@ -36,7 +36,7 @@ int main(int argc, char **argv){
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
     extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
-    extrude_farfield(&water_mesh_geometry, 4 * max_depth);
+    extrude_farfield(&water_mesh_geometry, max_depth);
 
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 0.0), 1000, 1000);
