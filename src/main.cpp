@@ -19,7 +19,19 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height);
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega);
 void openGL_accumulate();
 
-APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
+namespace Rendering {
+    APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
+    double time = 0.0;
+    double delta_time = 0.1;
+    MeshGeometryUnstructured_t* mesh_geometry = nullptr;
+    MeshUnstructured_t* mesh = nullptr;
+    APTracer::Entities::AccelerationStructure_t* acc = nullptr;
+    std::vector<std::complex<double>> eta;
+    unsigned int n_points = 0;
+    unsigned int n_elements = 0;
+    double omega = 0.0;
+}
+
 
 int main(int argc, char **argv){
     if (argc < 3) {
@@ -32,6 +44,7 @@ int main(int argc, char **argv){
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
 
     unsigned int n_grid_points = water_mesh_geometry.n_points_;
+    unsigned int n_grid_elements = water_mesh_geometry.n_elements_;
 
     // Setting the water height to 0 for now
     for (unsigned int i = 0; i < n_grid_points; ++i) {
@@ -96,9 +109,16 @@ int main(int argc, char **argv){
     scene.build_acc();
 
     APTracer::Entities::OpenGLRenderer_t opengl_renderer(&scene, &camera, &imgbuffer);
-    renderer = &opengl_renderer;
+    Rendering::renderer = &opengl_renderer;
     // We need to overload the render function with our own to apply movement etc
     opengl_renderer.render_function_ = openGL_accumulate;
+    Rendering::mesh_geometry = &water_mesh_geometry;
+    Rendering::mesh = &water_mesh;
+    Rendering::acc = scene.acc_;
+    Rendering::eta = eta;
+    Rendering::n_points = n_grid_points;
+    Rendering::n_elements = n_grid_elements;
+    Rendering::omega = omega;
 
     opengl_renderer.initialise();
     opengl_renderer.render();
@@ -388,7 +408,23 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     return eta;
 }
 
+void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::complex<double>> eta, unsigned int n_points, unsigned int n_elements, double time, double omega) {
+    for (unsigned int i = 0; i < n_points; ++i) {
+        mesh_geometry->points_[i][2] = std::real(eta[i] * std::exp(std::complex<double>(0.0, -1.0) * omega * time));
+    }
+
+    mesh_geometry->computeNormals(n_points);
+
+    for (unsigned int i = 0; i < n_elements; ++i) {
+        acc->remove(mesh->triangles_[i]);
+        mesh->triangles_[i]->update();
+        acc->add(mesh->triangles_[i]);
+    }
+}
+
 void openGL_accumulate() {
-    std::cout << "Noot" << std::endl;
-    renderer->accumulate();
+    Rendering::time += Rendering::delta_time;
+    std::cout << "t = " << Rendering::time << std::endl;
+    timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
+    Rendering::renderer->accumulate();
 }
