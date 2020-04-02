@@ -356,7 +356,6 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
 
     std::getline(meshfile, line);
     std::getline(meshfile, line);
-    std::getline(meshfile, line);
     std::istringstream liness3(line);
     liness3 >> token;
     if (token == "NPOIN="){
