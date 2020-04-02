@@ -101,9 +101,14 @@ double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry) {
 }
 
 void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) {
-    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_farfield_ + 1;
-    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_farfield_ * 2 + mesh_geometry->n_farfield_;
-    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_farfield_ + 1;
+    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_farfield_ * 2;
+    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_farfield_;
+
+    // For closing stuff
+    new_n_points += 1;
+    new_n_elements += mesh_geometry->n_farfield_;
+    new_n_normals += 1;
 
     // Putting back old stuff
     APTracer::Entities::Vec3f* new_points = new Vec3f[new_n_points];
@@ -203,9 +208,14 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
 }
 
 void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
-    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_wall_ + 1;
-    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_wall_ * 2 + mesh_geometry->n_wall_;
-    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_wall_ + 1;
+    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_wall_;
+    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_wall_ * 2;
+    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_wall_;
+
+    // For closing stuff
+    new_n_points += 1;
+    new_n_elements += mesh_geometry->n_wall_;
+    new_n_normals += 1;
 
     // Putting back old stuff
     APTracer::Entities::Vec3f* new_points = new Vec3f[new_n_points];
