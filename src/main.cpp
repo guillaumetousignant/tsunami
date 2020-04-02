@@ -43,7 +43,7 @@ int main(int argc, char **argv){
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.89, 0.9, 1.0), 1000, 64);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 64);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
     APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
