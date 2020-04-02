@@ -17,6 +17,9 @@ double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry);
 void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height);
 void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height);
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega);
+void openGL_accumulate();
+
+APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
 
 int main(int argc, char **argv){
     if (argc < 3) {
@@ -93,6 +96,10 @@ int main(int argc, char **argv){
     scene.build_acc();
 
     APTracer::Entities::OpenGLRenderer_t opengl_renderer(&scene, &camera, &imgbuffer);
+    renderer = &opengl_renderer;
+    // We need to overload the render function with our own to apply movement etc
+    opengl_renderer.render_function_ = openGL_accumulate;
+
     opengl_renderer.initialise();
     opengl_renderer.render();
 
@@ -379,4 +386,9 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     meshfile.close();
 
     return eta;
+}
+
+void openGL_accumulate() {
+    std::cout << "Noot" << std::endl;
+    renderer->accumulate();
 }
