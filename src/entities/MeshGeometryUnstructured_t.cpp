@@ -234,7 +234,7 @@ void MeshGeometryUnstructured_t::computeNormals(unsigned int n_points) {
             Vec3f point1 = points_[point_index1];
             Vec3f point2 = points_[point_index2];
 
-            normal += (point1 - point0).cross(point2 - point0).normalize_inplace();
+            normal += (point2 - point0).cross(point1 - point0).normalize_inplace();
             
             //normal += (points_[elements_[3 * point_to_elements_[i][j] + 1]] - points_[elements_[3 * point_to_elements_[i][j]]]).cross(points_[elements_[3 * point_to_elements_[i][j] + 2]] - points_[elements_[3 * point_to_elements_[i][j]]]).normalize_inplace(); // wow
         }
