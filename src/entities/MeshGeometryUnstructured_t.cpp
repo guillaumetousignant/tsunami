@@ -88,7 +88,7 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
         return;
     }
 
-    n_normals_ = n_elements_;
+    n_normals_ = n_points_;
     elements_ = new unsigned int[3 * n_elements_];
     element_normals_ = new unsigned int[3 * n_elements_];
     for (unsigned int i = 0; i < n_elements_; ++i) {
