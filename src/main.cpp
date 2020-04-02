@@ -33,7 +33,7 @@ namespace Rendering {
     unsigned int n_elements = 0;
     double omega = 0.0;
     unsigned int n_timestep = 0;
-    unsigned int write_interval = 100;
+    unsigned int write_interval = 200;
 }
 
 
@@ -444,6 +444,5 @@ void openGL_accumulate() {
         Rendering::time += Rendering::delta_time;
         timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
         Rendering::renderer->resetDisplay();
-        Rendering::n_timestep = 0;
     }  
 }
