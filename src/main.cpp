@@ -423,7 +423,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
 void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, unsigned int n_elements, double time, std::vector<double> omegas) {
     for (unsigned int i = 0; i < n_points; ++i) {
         mesh_geometry->points_[i][2] = 0.0;
-        for (unsigned int j = 0; j < etas.size(); ++i) {
+        for (unsigned int j = 0; j < etas.size(); ++j) {
             mesh_geometry->points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * time));
         }
     }
