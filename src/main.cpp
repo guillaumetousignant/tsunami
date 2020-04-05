@@ -42,7 +42,13 @@ int main(int argc, char **argv){
         std::cerr << "Error: input arguments with format 'mesh_file data_file'. Exiting." << std::endl;
     }
     std::string mesh_file = argv[1];
-    std::string data_file = argv[2];
+    std::string data_file = argv[2]; // REMOVE
+
+    unsigned int n_waves = argc - 2;
+    std::vector<std::string> data_files(n_waves, "");
+    for (unsigned int i = n_waves; i < n_waves; ++i) {
+        data_files[i] = argv[2 + i];
+    }
 
     MeshGeometryUnstructured_t water_mesh_geometry(mesh_file);
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
@@ -67,9 +73,15 @@ int main(int argc, char **argv){
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
-    double amplitude;
-    double omega;
-    std::vector<std::complex<double>> eta = get_eta(data_file, amplitude, omega);
+    double amplitude; // REMOVE
+    double omega; // REMOVE
+    std::vector<double> amplitudes(n_waves, 0);
+    std::vector<double> omegas(n_waves, 0);
+    std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
+    std::vector<std::complex<double>> eta = get_eta(data_file, amplitude, omega); // REMOVE
+    for (unsigned int i = 0; i < n_waves; ++i) {
+        etas[i] = get_eta(data_files[i], )
+    }
 
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
