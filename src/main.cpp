@@ -45,7 +45,7 @@ int main(int argc, char **argv){
 
     unsigned int n_waves = argc - 2;
     std::vector<std::string> data_files(n_waves, "");
-    for (unsigned int i = n_waves; i < n_waves; ++i) {
+    for (unsigned int i = 0; i < n_waves; ++i) {
         data_files[i] = argv[2 + i];
     }
 
