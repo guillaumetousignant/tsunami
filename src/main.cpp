@@ -28,10 +28,10 @@ namespace Rendering {
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::AccelerationStructure_t* acc = nullptr;
-    std::vector<std::complex<double>> eta;
+    std::vector<std::vector<std::complex<double>>> etas;
     unsigned int n_points = 0;
     unsigned int n_elements = 0;
-    double omega = 0.0;
+    std::vector<double> omegas;
     unsigned int n_timestep = 0;
     unsigned int write_interval = 200;
 }
@@ -42,7 +42,6 @@ int main(int argc, char **argv){
         std::cerr << "Error: input arguments with format 'mesh_file data_file'. Exiting." << std::endl;
     }
     std::string mesh_file = argv[1];
-    std::string data_file = argv[2]; // REMOVE
 
     unsigned int n_waves = argc - 2;
     std::vector<std::string> data_files(n_waves, "");
@@ -73,14 +72,11 @@ int main(int argc, char **argv){
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
-    double amplitude; // REMOVE
-    double omega; // REMOVE
     std::vector<double> amplitudes(n_waves, 0);
     std::vector<double> omegas(n_waves, 0);
     std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
-    std::vector<std::complex<double>> eta = get_eta(data_file, amplitude, omega); // REMOVE
     for (unsigned int i = 0; i < n_waves; ++i) {
-        etas[i] = get_eta(data_files[i], )
+        etas[i] = get_eta(data_files[i], amplitudes[i], omegas[i]);
     }
 
     // Render stuff
@@ -131,10 +127,10 @@ int main(int argc, char **argv){
     Rendering::mesh_geometry = &water_mesh_geometry;
     Rendering::mesh = &water_mesh;
     Rendering::acc = scene.acc_;
-    Rendering::eta = eta;
+    Rendering::etas = etas;
     Rendering::n_points = n_grid_points;
     Rendering::n_elements = n_grid_elements;
-    Rendering::omega = omega;
+    Rendering::omegas = omegas;
 
     opengl_renderer.initialise();
     opengl_renderer.render();
@@ -424,9 +420,12 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     return eta;
 }
 
-void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::complex<double>> eta, unsigned int n_points, unsigned int n_elements, double time, double omega) {
+void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, unsigned int n_elements, double time, std::vector<double> omegas) {
     for (unsigned int i = 0; i < n_points; ++i) {
-        mesh_geometry->points_[i][2] = std::real(eta[i] * std::exp(std::complex<double>(0.0, -1.0) * omega * time));
+        mesh_geometry->points_[i][2] = 0.0;
+        for (unsigned int j = 0; j < etas.size(); ++i) {
+            mesh_geometry->points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * time));
+        }
     }
 
     mesh_geometry->computeNormals(n_points);
@@ -454,7 +453,7 @@ void openGL_accumulate() {
         oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_timestep << ".png";
         Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
-        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::eta, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omega);
+        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::etas, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omegas);
         Rendering::renderer->resetDisplay();
     }  
 }
