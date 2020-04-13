@@ -33,7 +33,7 @@ namespace Rendering {
     unsigned int n_elements = 0;
     std::vector<double> omegas;
     unsigned int n_timestep = 0;
-    unsigned int write_interval = 200;
+    unsigned int write_interval = 1;
 }
 
 
@@ -49,16 +49,27 @@ int main(int argc, char **argv){
         data_files[i] = argv[2 + i];
     }
 
+    std::vector<double> amplitudes(n_waves, 0);
+    std::vector<double> omegas(n_waves, 0);
+    std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
+    for (unsigned int i = 0; i < n_waves; ++i) {
+        etas[i] = get_eta(data_files[i], amplitudes[i], omegas[i]);
+    }
+
     MeshGeometryUnstructured_t water_mesh_geometry(mesh_file);
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
 
     unsigned int n_grid_points = water_mesh_geometry.n_points_;
     unsigned int n_grid_elements = water_mesh_geometry.n_elements_;
 
-    // Setting the water height to 0 for now
+    // Setting the water height at t = 0
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         water_mesh_geometry.points_[i][2] = 0.0;
+        for (unsigned int j = 0; j < etas.size(); ++j) {
+            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * 0.0));
+        }
     }
+
     water_mesh_geometry.computeNormals(n_grid_points);
 
     // Negating the sand height
@@ -72,13 +83,6 @@ int main(int argc, char **argv){
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
-    std::vector<double> amplitudes(n_waves, 0);
-    std::vector<double> omegas(n_waves, 0);
-    std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
-    for (unsigned int i = 0; i < n_waves; ++i) {
-        etas[i] = get_eta(data_files[i], amplitudes[i], omegas[i]);
-    }
-
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
     APTracer::Materials::NonAbsorber_t air_scatterer;
@@ -86,11 +90,12 @@ int main(int argc, char **argv){
     APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
     APTracer::Materials::Transparent_t air(0, &air_scatterer);
+    APTracer::Materials::NormalMaterial_t normal;
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
 
-    MeshUnstructured_t water_mesh(&water, &water_transform, &water_mesh_geometry);
+    MeshUnstructured_t water_mesh(&normal, &water_transform, &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, &sand_transform, &sand_mesh_geometry);
 
     APTracer::Entities::TransformMatrix_t sun_transform;
