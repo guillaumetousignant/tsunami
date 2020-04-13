@@ -24,7 +24,7 @@ void openGL_accumulate();
 namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
     double time = 0.0;
-    double delta_time = 0.1;
+    double delta_time = 1;
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::AccelerationStructure_t* acc = nullptr;
@@ -87,15 +87,14 @@ int main(int argc, char **argv){
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
-    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
+    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
     APTracer::Materials::Transparent_t air(0, &air_scatterer);
-    APTracer::Materials::NormalMaterial_t normal;
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
 
-    MeshUnstructured_t water_mesh(&normal, &water_transform, &water_mesh_geometry);
+    MeshUnstructured_t water_mesh(&water, &water_transform, &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, &sand_transform, &sand_mesh_geometry);
 
     APTracer::Entities::TransformMatrix_t sun_transform;
