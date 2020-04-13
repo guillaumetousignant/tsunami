@@ -33,7 +33,7 @@ namespace Rendering {
     unsigned int n_elements = 0;
     std::vector<double> omegas;
     unsigned int n_timestep = 0;
-    unsigned int write_interval = 1;
+    unsigned int write_interval = 10000;
 }
 
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv){
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
     APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
@@ -111,14 +111,14 @@ int main(int argc, char **argv){
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
     scene.add(sand_mesh.triangles_, sand_mesh.n_tris_);
 
-    APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1800, 1200);
+    APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1920, 1080);
 
     APTracer::Entities::TransformMatrix_t camera_transform;
-    double fov[2] = {2.0/3.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
+    double fov[2] = {9.0/16.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
     unsigned int subpix[2] = {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
-    APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 8, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, -2000.0, 0.0));
+    APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
+    camera.transformation_->translate(Vec3f(0.0, -10000.0, 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
     camera.update();
 
