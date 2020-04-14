@@ -118,8 +118,9 @@ int main(int argc, char **argv){
     unsigned int subpix[2] = {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, -10000.0, 0.0));
+    camera.transformation_->translate(Vec3f(0.0, -12000.0, 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
+    camera.transformation_->translate(Vec3f(0.0, 0.0, -2500.0));
     camera.update();
 
     scene.build_acc();
