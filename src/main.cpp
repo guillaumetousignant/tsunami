@@ -33,7 +33,7 @@ namespace Rendering {
     unsigned int n_elements = 0;
     std::vector<double> omegas;
     unsigned int n_timestep = 0;
-    unsigned int write_interval = 10000;
+    unsigned int write_interval = 1000;
 }
 
 
