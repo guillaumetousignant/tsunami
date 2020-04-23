@@ -256,9 +256,9 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
 }
 
 void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
-    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_wall_;
-    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_wall_ * 2;
-    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_wall_;
+    unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+    unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->sum_n_wall_ * 2;
+    unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->sum_n_wall_;
 
     // For closing stuff
     /*new_n_points += 1;
@@ -287,45 +287,55 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
         new_element_normals[3 * i + 2] = mesh_geometry->element_normals_[3 * i + 2];
     }
 
+    unsigned int wall_index = 0;
     // Making new stuff
-    for (unsigned int i = 0; i < mesh_geometry->n_wall_; ++i){
-        new_points[i + mesh_geometry->n_points_] = mesh_geometry->points_[mesh_geometry->wall_[2 * i]] + Vec3f(0.0, 0.0, height);
+    for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
+        for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
+            new_points[i + mesh_geometry->n_points_ + wall_index] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] + Vec3f(0.0, 0.0, height);
+            new_normals[i + mesh_geometry->n_normals_] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]].normalize(); 
+        }
+        wall_index += mesh_geometry->n_wall_[j];
     }
 
-    for (unsigned int i = 0; i < mesh_geometry->n_wall_; ++i){
-        new_normals[i + mesh_geometry->n_normals_] = mesh_geometry->points_[mesh_geometry->wall_[2 * i]].normalize();
-    }
-
+    wall_index = 0;
     // Adds two elements per boundary, created with the new points
-    for (unsigned int i = 0; i < mesh_geometry->n_wall_ - 1; ++i){
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i] = mesh_geometry->wall_[2 * i];
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 1] = mesh_geometry->n_points_ + i;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 3] = mesh_geometry->wall_[2 * i + 1];
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 4] = mesh_geometry->wall_[2 * i];
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * i + 5] = mesh_geometry->n_points_ + i + 1;
-    }
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1)] = mesh_geometry->wall_[2 * (mesh_geometry->n_wall_ - 1)];
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 1] = mesh_geometry->n_points_ + (mesh_geometry->n_wall_ - 1);
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 2] = mesh_geometry->n_points_;
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 3] = mesh_geometry->wall_[2 * (mesh_geometry->n_wall_ - 1) + 1];
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 4] = mesh_geometry->wall_[2 * (mesh_geometry->n_wall_ - 1)];
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 5] = mesh_geometry->n_points_ ;
+    for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
+        for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 2] = mesh_geometry->walls_[j][2 * i];
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 1] = mesh_geometry->n_points_ + i;
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 3] = mesh_geometry->walls_[j][2 * i + 1];
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 4] = mesh_geometry->walls_[j][2 * i];
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 5] = mesh_geometry->n_points_ + i + 1;
+        }
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1)] = mesh_geometry->walls_[j][2 * (mesh_geometry->n_wall_[j] - 1)];
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 1] = mesh_geometry->n_points_ + (mesh_geometry->n_wall_[j] - 1);
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_points_;
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 3] = mesh_geometry->walls_[j][2 * (mesh_geometry->n_wall_[j] - 1) + 1];
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 4] = mesh_geometry->walls_[j][2 * (mesh_geometry->n_wall_[j] - 1)];
+        new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 5] = mesh_geometry->n_points_ ;
 
-    for (unsigned int i = 0; i < mesh_geometry->n_wall_ - 1; ++i){
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i] = mesh_geometry->n_normals_ + i;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 1] = mesh_geometry->n_normals_ + i;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 2] = mesh_geometry->n_normals_ + i + 1;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 3] = mesh_geometry->n_normals_ + i + 1;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 4] = mesh_geometry->n_normals_ + i;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * i + 5] = mesh_geometry->n_normals_ + i + 1;
+        wall_index += mesh_geometry->n_wall_[j];
     }
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1)] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_ - 1);
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 1] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_ - 1);
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 2] = mesh_geometry->n_normals_;
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 3] = mesh_geometry->n_normals_;
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 4] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_ - 1);
-    new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_ - 1) + 5] = mesh_geometry->n_normals_;
+
+    for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
+        for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i] = mesh_geometry->n_normals_ + i;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 1] = mesh_geometry->n_normals_ + i;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 2] = mesh_geometry->n_normals_ + i + 1;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 3] = mesh_geometry->n_normals_ + i + 1;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 4] = mesh_geometry->n_normals_ + i;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 5] = mesh_geometry->n_normals_ + i + 1;
+        }
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1)] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_[j] - 1);
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 1] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_[j] - 1);
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_normals_;
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 3] = mesh_geometry->n_normals_;
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 4] = mesh_geometry->n_normals_ + (mesh_geometry->n_wall_[j] - 1);
+        new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * (mesh_geometry->n_wall_[j] - 1) + 5] = mesh_geometry->n_normals_;
+
+        wall_index += mesh_geometry->n_wall_[j];
+    }
 
     // Closing
     // Making new stuff
