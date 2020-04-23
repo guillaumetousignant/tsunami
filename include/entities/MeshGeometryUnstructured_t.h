@@ -15,6 +15,7 @@ class MeshGeometryUnstructured_t{
         unsigned int n_normals_;
         unsigned int n_walls_;
         unsigned int* n_wall_;
+        unsigned int sum_n_wall_;
         unsigned int n_farfield_;
         APTracer::Entities::Vec3f* points_;
         unsigned int* elements_;

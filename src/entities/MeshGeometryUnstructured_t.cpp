@@ -134,6 +134,7 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
     n_wall_ = new unsigned int[n_walls_];
     unsigned int wall_index = 0;
     walls_ = new unsigned int*[n_walls_];
+    sum_n_wall_ = 0;
 
     for (unsigned int i = 0; i < n_markers; ++i) {
         std::string type;
@@ -160,6 +161,7 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
                 return;
             }
 
+            sum_n_wall_ += n_wall_[wall_index];
             walls_[wall_index] = new unsigned int[2 * n_wall_[wall_index]];
             for (unsigned int j = 0; j < n_wall_[wall_index]; ++j) {
 
