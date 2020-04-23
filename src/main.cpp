@@ -290,9 +290,15 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     unsigned int wall_index = 0;
     // Making new stuff
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
+        Vec3f center(0.0);
+        for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
+            center += mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]];
+        }
+        center /= mesh_geometry->n_wall_[j];
+
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
             new_points[i + mesh_geometry->n_points_ + wall_index] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] + Vec3f(0.0, 0.0, height);
-            new_normals[i + mesh_geometry->n_normals_ + wall_index] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]].normalize(); 
+            new_normals[i + mesh_geometry->n_normals_ + wall_index] = (mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] - center).normalize_inplace(); 
         }
         wall_index += mesh_geometry->n_wall_[j];
     }
