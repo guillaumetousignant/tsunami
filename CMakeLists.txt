@@ -15,7 +15,7 @@ add_executable(tsunami
 find_package(OpenMP)
 
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(tsunami PUBLIC optimized OpenMP::OpenMP_CXX)
+    target_link_libraries(tsunami PUBLIC OpenMP::OpenMP_CXX) # Always uses openmp, because library is build with it
 endif()
 
 if(DEFINED ENV{ANOTHER_PATH_TRACER_DIR})
