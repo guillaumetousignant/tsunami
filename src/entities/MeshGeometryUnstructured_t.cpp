@@ -37,12 +37,21 @@ MeshGeometryUnstructured_t::~MeshGeometryUnstructured_t(){
         delete [] normals_;
     }
 
-    if (wall_ != nullptr) {
-        delete [] wall_;
+    if (walls_ != nullptr) {
+        for (unsigned int i = 0; i < n_walls_; ++i) {
+            if (walls_[i] != nullptr) {
+                delete [] walls_[i];
+            } 
+        }
+        delete [] walls_;
     }
 
     if (farfield_ != nullptr) {
         delete [] farfield_;
+    }
+
+    if (n_wall_ != nullptr) {
+        delete [] n_wall_;
     }
 }
 
@@ -121,6 +130,11 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
         return;
     }
 
+    n_walls_ = n_markers - 1;
+    n_wall_ = new unsigned int[n_walls_];
+    unsigned int wall_index = 0;
+    walls_ = new unsigned int*[n_walls_];
+
     for (unsigned int i = 0; i < n_markers; ++i) {
         std::string type;
         std::getline(meshfile, line);
@@ -139,15 +153,15 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
             std::istringstream liness2(line);
             liness2 >> token;
             if (token == "MARKER_ELEMS="){
-                liness2 >> n_wall_;
+                liness2 >> n_wall_[wall_index];
             }
             else {
                 std::cerr << "Error: expected marker 'MARKER_ELEMS=', found '" << token << "'. Exiting." << std::endl;
                 return;
             }
 
-            wall_ = new unsigned int[2 * n_wall_];
-            for (unsigned int j = 0; j < n_wall_; ++j) {
+            walls_[wall_index] = new unsigned int[2 * n_wall_[wall_index]];
+            for (unsigned int j = 0; j < n_wall_[wall_index]; ++j) {
 
                 std::getline(meshfile, line);
                 std::istringstream liness6(line);
@@ -160,9 +174,10 @@ void MeshGeometryUnstructured_t::readSU2(const std::string &filename){
 
                 unsigned int val0, val1;
                 liness6 >> val0 >> val1;
-                wall_[2 * j] = val0 - 1;
-                wall_[2 * j + 1] = val1 - 1;
+                walls_[wall_index][2 * j] = val0 - 1;
+                walls_[wall_index][2 * j + 1] = val1 - 1;
             }
+            ++wall_index;
         }
         else if (type == "farfield") {
             std::getline(meshfile, line);
@@ -253,9 +268,12 @@ void MeshGeometryUnstructured_t::verify() {
         std::cout << "    " << i << "    " << elements_[3 * i] << "    " << elements_[3 * i + 1] << "    " << elements_[3 * i + 2] << std::endl;
     }
 
-    std::cout << std::endl << "Tere are " << n_wall_ << " wall elements, with points:" << std::endl;
-    for (unsigned int i = 0; i < n_wall_; ++i) {
-        std::cout << "    " << i << "    " << wall_[2 * i] << "    " << wall_[2 * i + 1] << std::endl;
+    std::cout << std::endl << "Tere are " << n_walls_ << " walls." << std::endl;
+    for (unsigned int j = 0; j < n_walls_; ++j) {
+        std::cout << std::endl << "    Tere are " << n_wall_[j] << " wall elements in wall " << j << ", with points:" << std::endl;
+        for (unsigned int i = 0; i < n_wall_[j]; ++i) {
+            std::cout << "        " << i << "    " << walls_[j][2 * i] << "    " << walls_[j][2 * i + 1] << std::endl;
+        }
     }
 
     std::cout << std::endl << "Tere are " << n_farfield_ << " farfield elements, with points:" << std::endl;
