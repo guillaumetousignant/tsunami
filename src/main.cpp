@@ -24,16 +24,15 @@ void openGL_accumulate();
 namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
     double time = 0.0;
-    double delta_time = 0.1;
+    double delta_time = 1;
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::AccelerationStructure_t* acc = nullptr;
     std::vector<std::vector<std::complex<double>>> etas;
     unsigned int n_points = 0;
-    unsigned int n_elements = 0;
     std::vector<double> omegas;
     unsigned int n_timestep = 0;
-    unsigned int write_interval = 200;
+    unsigned int write_interval = 1000;
 }
 
 
@@ -49,16 +48,26 @@ int main(int argc, char **argv){
         data_files[i] = argv[2 + i];
     }
 
+    std::vector<double> amplitudes(n_waves, 0);
+    std::vector<double> omegas(n_waves, 0);
+    std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
+    for (unsigned int i = 0; i < n_waves; ++i) {
+        etas[i] = get_eta(data_files[i], amplitudes[i], omegas[i]);
+    }
+
     MeshGeometryUnstructured_t water_mesh_geometry(mesh_file);
     MeshGeometryUnstructured_t sand_mesh_geometry(mesh_file);
 
     unsigned int n_grid_points = water_mesh_geometry.n_points_;
-    unsigned int n_grid_elements = water_mesh_geometry.n_elements_;
 
-    // Setting the water height to 0 for now
+    // Setting the water height at t = 0
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         water_mesh_geometry.points_[i][2] = 0.0;
+        for (unsigned int j = 0; j < etas.size(); ++j) {
+            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * 0.0));
+        }
     }
+
     water_mesh_geometry.computeNormals(n_grid_points);
 
     // Negating the sand height
@@ -72,18 +81,11 @@ int main(int argc, char **argv){
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
-    std::vector<double> amplitudes(n_waves, 0);
-    std::vector<double> omegas(n_waves, 0);
-    std::vector<std::vector<std::complex<double>>> etas(n_waves, std::vector<std::complex<double>>());
-    for (unsigned int i = 0; i < n_waves; ++i) {
-        etas[i] = get_eta(data_files[i], amplitudes[i], omegas[i]);
-    }
-
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.95, 0.99), 1000, 8);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
-    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
+    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
     APTracer::Materials::Transparent_t air(0, &air_scatterer);
 
@@ -107,15 +109,16 @@ int main(int argc, char **argv){
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
     scene.add(sand_mesh.triangles_, sand_mesh.n_tris_);
 
-    APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1800, 1200);
+    APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1920, 1080);
 
     APTracer::Entities::TransformMatrix_t camera_transform;
-    double fov[2] = {2.0/3.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
+    double fov[2] = {9.0/16.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
     unsigned int subpix[2] = {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
-    APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 8, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, -2000.0, 0.0));
+    APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
+    camera.transformation_->translate(Vec3f(0.0, -12000.0, 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
+    camera.transformation_->translate(Vec3f(0.0, 0.0, -2500.0));
     camera.update();
 
     scene.build_acc();
@@ -129,7 +132,6 @@ int main(int argc, char **argv){
     Rendering::acc = scene.acc_;
     Rendering::etas = etas;
     Rendering::n_points = n_grid_points;
-    Rendering::n_elements = n_grid_elements;
     Rendering::omegas = omegas;
 
     opengl_renderer.initialise();
@@ -420,7 +422,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     return eta;
 }
 
-void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, unsigned int n_elements, double time, std::vector<double> omegas) {
+void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, double time, std::vector<double> omegas) {
     for (unsigned int i = 0; i < n_points; ++i) {
         mesh_geometry->points_[i][2] = 0.0;
         for (unsigned int j = 0; j < etas.size(); ++j) {
@@ -430,7 +432,7 @@ void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mes
 
     mesh_geometry->computeNormals(n_points);
 
-    for (unsigned int i = 0; i < n_elements; ++i) {
+    for (unsigned int i = 0; i < mesh_geometry->n_elements_; ++i) {
         acc->remove(mesh->triangles_[i]);
         mesh->triangles_[i]->update();
         acc->add(mesh->triangles_[i]);
@@ -453,7 +455,7 @@ void openGL_accumulate() {
         oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_timestep << ".png";
         Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
-        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::etas, Rendering::n_points, Rendering::n_elements, Rendering::time, Rendering::omegas);
+        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
         Rendering::renderer->resetDisplay();
     }  
 }
