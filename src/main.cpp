@@ -142,8 +142,8 @@ int main(int argc, char **argv){
 
 double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry) {
     double depth = std::numeric_limits<double>::infinity();
-    for (unsigned int i = 0; i < mesh_geometry->n_points_; ++i) {
-        depth = std::min(depth, mesh_geometry->points_[i][2]);
+    for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i) {
+        depth = std::min(depth, mesh_geometry->points_[mesh_geometry->farfield_[2 * i]][2]);
     }
     return depth;
 }
