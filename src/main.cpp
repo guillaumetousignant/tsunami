@@ -318,6 +318,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
         wall_index += mesh_geometry->n_wall_[j];
     }
 
+    wall_index = 0;
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
             new_element_normals[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i] = mesh_geometry->n_normals_ + i;
