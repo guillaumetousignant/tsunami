@@ -301,7 +301,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     // Adds two elements per boundary, created with the new points
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
-            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 2] = mesh_geometry->walls_[j][2 * i];
+            new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i] = mesh_geometry->walls_[j][2 * i];
             new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 1] = mesh_geometry->n_points_ + i;
             new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 2] = mesh_geometry->n_points_ + i + 1;
             new_elements[3 * mesh_geometry->n_elements_ + 3 * wall_index + 6 * i + 3] = mesh_geometry->walls_[j][2 * i + 1];
