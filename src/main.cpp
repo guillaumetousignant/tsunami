@@ -287,18 +287,20 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
         new_element_normals[3 * i + 2] = mesh_geometry->element_normals_[3 * i + 2];
     }
 
+    APTracer::Entities::Vec3f* centers = new Vec3f[mesh_geometry->n_walls_];
+
     unsigned int wall_index = 0;
     // Making new stuff
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
-        Vec3f center(0.0);
+       centers[j] = Vec3f(0.0);
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
-            center += mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]];
+            centers[j] += mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]];
         }
-        center /= mesh_geometry->n_wall_[j];
+        centers[j] /= mesh_geometry->n_wall_[j];
 
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
             new_points[i + mesh_geometry->n_points_ + wall_index] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] + Vec3f(0.0, 0.0, height);
-            new_normals[i + mesh_geometry->n_normals_ + wall_index] = (mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] - center).normalize_inplace(); 
+            new_normals[i + mesh_geometry->n_normals_ + wall_index] = (mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] - centers[j]).normalize_inplace(); 
         }
         wall_index += mesh_geometry->n_wall_[j];
     }
@@ -347,7 +349,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     // Closing
     // Making new stuff
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
-        new_points[mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_ + j] = Vec3f(0.0, 0.0, height);
+        new_points[mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_ + j] = centers[j];
     }
     new_normals[mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_] = Vec3f(0.0, 0.0, 1.0);
 
@@ -357,11 +359,11 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
             new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * i] = mesh_geometry->n_points_ + i + wall_index;
             new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * i + 1] = mesh_geometry->n_points_ + i + 1 + wall_index;
-            new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_ + j;
         }
         new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * (mesh_geometry->n_wall_[j] - 1)] = mesh_geometry->n_points_ + (mesh_geometry->n_wall_[j] - 1) + wall_index;
         new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * (mesh_geometry->n_wall_[j] - 1) + 1] = mesh_geometry->n_points_ + wall_index;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * mesh_geometry->sum_n_wall_ + 3 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_ + j;
         wall_index += mesh_geometry->n_wall_[j];
     }
 
@@ -387,6 +389,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     delete [] new_normals;
     delete [] new_elements;
     delete [] new_element_normals;
+    delete [] centers;
 }
 
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega) {
