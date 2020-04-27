@@ -85,7 +85,7 @@ int main(int argc, char **argv){
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32);
     APTracer::Materials::NonAbsorber_t air_scatterer;
 
-    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
+    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
     APTracer::Materials::Transparent_t air(0, &air_scatterer);
 
@@ -353,19 +353,23 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
     wall_index = 0;
     for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j] - 1; ++i){
-            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * i] = mesh_geometry->n_points_ + i;
-            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 1] = mesh_geometry->n_points_ + i + 1;
-            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_wall_[j];
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i] = mesh_geometry->n_points_ + i + wall_index;
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 1] = mesh_geometry->n_points_ + i + 1 + wall_index;
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
         }
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1)] = mesh_geometry->n_points_ + (mesh_geometry->n_wall_[j] - 1);
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1) + 1] = mesh_geometry->n_points_;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->n_wall_[j];
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1)] = mesh_geometry->n_points_ + (mesh_geometry->n_wall_[j] - 1) + wall_index;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1) + 1] = mesh_geometry->n_points_ + wall_index;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * (mesh_geometry->n_wall_[j] - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+        ++wall_index;
     }
 
-    for (unsigned int i = 0; i < mesh_geometry->n_wall_; ++i){
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_) + 3 * i] = mesh_geometry->n_points_ + mesh_geometry->n_wall_;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_) + 3 * i + 1] = mesh_geometry->n_points_ + mesh_geometry->n_wall_;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_wall_) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_wall_;
+    wall_index = 0;
+    for (unsigned int j = 0; j < mesh_geometry->n_walls_; ++j) {
+        for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 1] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * wall_index + 6 * (mesh_geometry->n_wall_[j]) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->sum_n_wall_;
+        }
     }
 
     std::swap(mesh_geometry->points_, new_points);
