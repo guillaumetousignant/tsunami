@@ -82,12 +82,11 @@ int main(int argc, char **argv){
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32);
-    APTracer::Materials::NonAbsorber_t air_scatterer;
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32, 1.33, 10);
+    APTracer::Materials::NonAbsorber_t air(1.0, 0);
 
-    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), 1.33, 10, &water_scatterer);
+    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
-    APTracer::Materials::Transparent_t air(0, &air_scatterer);
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
@@ -475,11 +474,11 @@ void openGL_accumulate() {
     Rendering::renderer->accumulate();
     auto t_end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Iteration " << Rendering::renderer->n_iter_gl_ << " done in " 
+    std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
         << std::chrono::duration<double, std::milli>(t_end-t_start).count()/1000.0 
         << "s." << std::endl;
     
-    if (Rendering::renderer->n_iter_gl_ == Rendering::write_interval) {
+    if (Rendering::renderer->imgbuffer_->updates_ == Rendering::write_interval) {
         ++Rendering::n_timestep;
         std::cout << "Timestep " << Rendering::n_timestep << ", t = " << Rendering::time << std::endl;
         std::ostringstream oss;
