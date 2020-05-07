@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
     extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
-    extrude_farfield(&water_mesh_geometry, max_depth);
+    extrude_farfield(&water_mesh_geometry, 2 * max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
     // Setting the water height at t = 0
