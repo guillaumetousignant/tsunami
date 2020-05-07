@@ -27,7 +27,7 @@ namespace Rendering {
     double delta_time = 1;
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
-    APTracer::Entities::AccelerationStructure_t* acc = nullptr;
+    APTracer::Entities::Scene_t* scene = nullptr;
     std::vector<std::vector<std::complex<double>>> etas;
     unsigned int n_points = 0;
     std::vector<double> omegas;
@@ -129,7 +129,7 @@ int main(int argc, char **argv){
     opengl_renderer.render_function_ = openGL_accumulate;
     Rendering::mesh_geometry = &water_mesh_geometry;
     Rendering::mesh = &water_mesh;
-    Rendering::acc = scene.acc_;
+    Rendering::scene = &scene;
     Rendering::etas = etas;
     Rendering::n_points = n_grid_points;
     Rendering::omegas = omegas;
@@ -452,7 +452,7 @@ std::vector<std::complex<double>> get_eta(std::string filename, double &amplitud
     return eta;
 }
 
-void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::AccelerationStructure_t* acc, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, double time, std::vector<double> omegas) {
+void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mesh, APTracer::Entities::Scene_t* scene, std::vector<std::vector<std::complex<double>>> etas, unsigned int n_points, double time, std::vector<double> omegas) {
     for (unsigned int i = 0; i < n_points; ++i) {
         mesh_geometry->points_[i][2] = 0.0;
         for (unsigned int j = 0; j < etas.size(); ++j) {
@@ -461,12 +461,8 @@ void timestep(MeshGeometryUnstructured_t* mesh_geometry, MeshUnstructured_t* mes
     }
 
     mesh_geometry->computeNormals(n_points);
-
-    for (unsigned int i = 0; i < mesh_geometry->n_elements_; ++i) {
-        acc->remove(mesh->triangles_[i]);
-        mesh->triangles_[i]->update();
-        acc->add(mesh->triangles_[i]);
-    }
+    mesh->update();
+    scene->build_acc(); // Slower than removing and adding the shapes, but will maybe fix issues with triangles dissapearing.
 }
 
 void openGL_accumulate() {
@@ -485,7 +481,7 @@ void openGL_accumulate() {
         oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_timestep << ".png";
         Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
-        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::acc, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
+        timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::scene, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
         Rendering::renderer->resetDisplay();
     }  
 }
