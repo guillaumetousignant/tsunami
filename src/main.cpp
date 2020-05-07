@@ -60,16 +60,6 @@ int main(int argc, char **argv){
 
     unsigned int n_grid_points = water_mesh_geometry.n_points_;
 
-    // Setting the water height at t = 0
-    for (unsigned int i = 0; i < n_grid_points; ++i) {
-        water_mesh_geometry.points_[i][2] = 0.0;
-        for (unsigned int j = 0; j < etas.size(); ++j) {
-            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * 0.0));
-        }
-    }
-
-    water_mesh_geometry.computeNormals(n_grid_points);
-
     // Negating the sand height
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         sand_mesh_geometry.points_[i][2] = -sand_mesh_geometry.points_[i][2];
@@ -80,6 +70,16 @@ int main(int argc, char **argv){
     extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
     extrude_farfield(&water_mesh_geometry, max_depth);
     extrude_wall(&sand_mesh_geometry, -max_depth);
+
+    // Setting the water height at t = 0
+    for (unsigned int i = 0; i < n_grid_points; ++i) {
+        water_mesh_geometry.points_[i][2] = 0.0;
+        for (unsigned int j = 0; j < etas.size(); ++j) {
+            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * 0.0));
+        }
+    }
+
+    water_mesh_geometry.computeNormals(n_grid_points);
 
     // Render stuff
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32, 1.33, 10);
