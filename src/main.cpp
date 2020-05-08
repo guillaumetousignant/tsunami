@@ -24,7 +24,7 @@ void openGL_accumulate();
 namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
     double time = 0.0;
-    double delta_time = 1;
+    double delta_time = 1.0;
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::Scene_t* scene = nullptr;
