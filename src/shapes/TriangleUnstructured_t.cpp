@@ -84,7 +84,7 @@ bool TriangleUnstructured_t::intersection(const APTracer::Entities::Ray_t &ray, 
     return true;
 }
 
-void TriangleUnstructured_t::normaluv(const APTracer::Entities::Ray_t &ray, const double (&uv)[2], double (&tuv)[2], Vec3f &normalvec) const {
+void TriangleUnstructured_t::normaluv(double time, const double (&uv)[2], double (&tuv)[2], Vec3f &normalvec) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
     normalvec = Vec3f(distance[0] * normals_[0][0] + distance[1] * normals_[1][0] + distance[2] * normals_[2][0], 
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
@@ -94,7 +94,7 @@ void TriangleUnstructured_t::normaluv(const APTracer::Entities::Ray_t &ray, cons
     tuv[1] = 0.0; // Not used
 }
 
-void TriangleUnstructured_t::normal(const APTracer::Entities::Ray_t &ray, const double (&uv)[2], Vec3f &normalvec) const {
+void TriangleUnstructured_t::normal(double time, const double (&uv)[2], Vec3f &normalvec) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
     normalvec = Vec3f(distance[0] * normals_[0][0] + distance[1] * normals_[1][0] + distance[2] * normals_[2][0], 
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
@@ -102,7 +102,7 @@ void TriangleUnstructured_t::normal(const APTracer::Entities::Ray_t &ray, const 
     // Matrix multiplication, optimise.
 }
 
-void TriangleUnstructured_t::normal_uv_tangent(const APTracer::Entities::Ray_t &ray, const double (&uv)[2], double (&tuv)[2], Vec3f &normalvec, Vec3f &tangentvec) const {
+void TriangleUnstructured_t::normal_uv_tangent(double time, const double (&uv)[2], double (&tuv)[2], Vec3f &normalvec, Vec3f &tangentvec) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
     normalvec = Vec3f(distance[0] * normals_[0][0] + distance[1] * normals_[1][0] + distance[2] * normals_[2][0], 
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
@@ -114,7 +114,7 @@ void TriangleUnstructured_t::normal_uv_tangent(const APTracer::Entities::Ray_t &
     tangentvec = Vec3f(0.0, 0.0, 1.0);
 }  
 
-void TriangleUnstructured_t::normal_face(const APTracer::Entities::Ray_t &ray, Vec3f &normalvec) const{
+void TriangleUnstructured_t::normal_face(double time, Vec3f &normalvec) const{
     normalvec = v0v1_.cross(v0v2_).normalize_inplace();
 }
 
