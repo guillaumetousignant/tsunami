@@ -85,7 +85,7 @@ int main(int argc, char **argv){
     APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32, 1.33, 10);
     APTracer::Materials::NonAbsorber_t air(1.0, 0);
 
-    APTracer::Materials::Refractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
+    APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
 
     APTracer::Entities::TransformMatrix_t water_transform;
@@ -102,7 +102,10 @@ int main(int argc, char **argv){
     sun.transformation_->rotateX(-1.1781);
     sun.update();
 
-    APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
+    APTracer::Entities::Texture_t background("assets/Ocean from horn.jpg");
+    //APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
+    double sun_pos[2] = {0.62093, 0.77075};
+    APTracer::Skyboxes::SkyboxTextureSun_t sky(&background, sun_pos, Vec3f(12.6373, 11.9395, 11.6477)*4, 0.035);
 
     APTracer::Entities::Scene_t scene;
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
@@ -119,6 +122,7 @@ int main(int argc, char **argv){
     camera.transformation_->translate(Vec3f(0.0, 2.2 * min_sand_coord[1], 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
     camera.transformation_->translate(Vec3f(0.0, 0.0, -2500.0));
+    camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * M_PI/180.0);
     camera.update();
 
     scene.build_acc();
@@ -482,6 +486,8 @@ void openGL_accumulate() {
         Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
         timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::scene, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
+        Rendering::renderer->camera_->transformation_->rotateZAxis(M_PI/180.0);
+        Rendering::renderer->camera_->update();
         Rendering::renderer->resetDisplay();
     }  
 }
