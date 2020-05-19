@@ -102,7 +102,7 @@ int main(int argc, char **argv){
     sun.transformation_->rotateX(-1.1781);
     sun.update();
 
-    APTracer::Entities::Texture_t background("assets/Ocean from horn.jpg");
+    APTracer::Entities::Texture_t background("assets/background.jpg");
     //APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
     double sun_pos[2] = {0.62093, 0.77075};
     APTracer::Skyboxes::SkyboxTextureSun_t sky(&background, sun_pos, Vec3f(12.6373, 11.9395, 11.6477)*4, 0.035);
