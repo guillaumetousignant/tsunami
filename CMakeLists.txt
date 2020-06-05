@@ -28,52 +28,6 @@ target_include_directories(tsunami
 
 target_link_libraries(tsunami PRIVATE APTracer)
 
-# Shouldn't be needed START
-if(WIN32)
-    find_library(PNG REQUIRED
-        NAMES png libpng libpng_a libpng_debug libpng_a_debug
-        HINTS external_windows/lib) # CHECK make image libraries optional
-    find_library(JPEG REQUIRED
-        NAMES jpeg libjpeg jpeg_a libjpeg_a
-        HINTS external_windows/lib) # CHECK make image libraries optional
-    find_library(TIFF REQUIRED
-        NAMES tiff libtiff
-        HINTS external_windows/lib) # CHECK make image libraries optional
-    find_library(GLUT REQUIRED
-        NAMES freeglut libfreeglut glut libglut
-        HINTS external_windows/lib) # CHECK make image libraries optional
-
-    target_include_directories(tsunami PUBLIC 
-        $<INSTALL_INTERFACE:external_windows/include>    
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external_windows/include>)
-
-    SET(PNG_LIBRARY ${PNG})
-    SET(JPEG_LIBRARY ${JPEG})
-    SET(TIFF_LIBRARY ${TIFF})
-    SET(GLUT_LIBRARY ${GLUT})
-else()
-    find_package(PNG REQUIRED) # CHECK make image libraries optional
-    find_package(JPEG REQUIRED)
-    find_package(TIFF REQUIRED)
-    find_package(GLUT REQUIRED)
-
-    target_include_directories(tsunami PUBLIC 
-        ${PNG_INCLUDE_DIR}
-        ${JPEG_INCLUDE_DIR}
-        ${TIFF_INCLUDE_DIR}
-        ${GLUT_INCLUDE_DIRS})
-endif()
-
-find_package(OpenGL REQUIRED COMPONENTS OpenGL) # CHECK make optional
-add_dependencies(tsunami OpenGL::GL) # Should use OpenGL::OpenGL on newer linux hosts, but doesn't work on windows and android
-target_link_libraries(tsunami PUBLIC 
-    ${PNG_LIBRARY}
-    ${JPEG_LIBRARY}
-    ${TIFF_LIBRARY}
-    OpenGL::GL
-    ${GLUT_LIBRARY}) # Should use OpenGL::OpenGL on newer linux hosts, but doesn't work on windows and android
-# Shouldn't be needed END
-
 target_compile_features(tsunami PRIVATE cxx_std_11)
 
 option(BUILD_TESTS "Build all tests." OFF)
