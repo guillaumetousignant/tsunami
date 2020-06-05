@@ -1,6 +1,6 @@
 #include "shapes/TriangleUnstructured_t.h"
-#include "entities/TransformMatrix_t.h"
-#include "entities/Material_t.h"
+#include <another_path_tracer/entities/TransformMatrix_t.h>
+#include <another_path_tracer/entities/Material_t.h>
 #include <cmath>
 #include <limits>
 #include <algorithm>

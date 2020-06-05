@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "entities/Vec3f.h"
+#include <another_path_tracer/entities/Vec3f.h>
 
 class MeshGeometryUnstructured_t{
     public:

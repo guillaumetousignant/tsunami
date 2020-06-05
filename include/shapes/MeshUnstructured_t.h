@@ -1,7 +1,7 @@
 #ifndef MESHUNSTRUCTURED_T_H
 #define MESHUNSTRUCTURED_T_H
 
-#include "entities/Vec3f.h"
+#include <another_path_tracer/entities/Vec3f.h>
 
 namespace APTracer { namespace Entities {
     class Material_t;

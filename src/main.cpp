@@ -1,7 +1,7 @@
-#include "another_path_tracer.h"
+#include <another_path_tracer/another_path_tracer.h>
 #include "entities/MeshGeometryUnstructured_t.h"
 #include "shapes/MeshUnstructured_t.h"
-#include "entities/RandomGenerator_t.h"
+#include <another_path_tracer/entities/RandomGenerator_t.h>
 
 #include <limits>
 #include <cmath>

@@ -1,9 +1,9 @@
 #ifndef TRIANGLEUNSTRUCTURED_T_H
 #define TRIANGLEUNSTRUCTURED_T_H
 
-#include "entities/Ray_t.h"
-#include "entities/Vec3f.h"
-#include "entities/Shape_t.h"
+#include <another_path_tracer/entities/Ray_t.h>
+#include <another_path_tracer/entities/Vec3f.h>
+#include <another_path_tracer/entities/Shape_t.h>
 
 namespace APTracer { namespace Entities {
     class TransformMatrix_t;
