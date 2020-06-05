@@ -26,7 +26,7 @@ target_include_directories(tsunami
         include
 )
 
-target_link_libraries(tsunami PRIVATE APTracer)
+target_link_libraries(tsunami PRIVATE APTracer::APTracer)
 
 target_compile_features(tsunami PRIVATE cxx_std_11)
 
@@ -37,7 +37,7 @@ if (BUILD_TESTS)
     add_executable(unit_tests 
         tests/main_test.cpp
         tests/catch.hpp)
-    target_link_libraries(unit_tests PRIVATE APTracer)
+    target_link_libraries(unit_tests PRIVATE APTracer::APTracer)
     target_compile_features(unit_tests PRIVATE cxx_std_11)
 
     add_test(unit_tests unit_tests)
