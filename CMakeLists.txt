@@ -18,7 +18,7 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(tsunami PUBLIC OpenMP::OpenMP_CXX) # Always uses openmp, because library is build with it
 endif()
 
-
+find_package(OpenGL REQUIRED COMPONENTS OpenGL) # Shouldn't be needed, should be inherited from APTracer...
 find_package(APTracer REQUIRED)
 
 target_include_directories(tsunami 
