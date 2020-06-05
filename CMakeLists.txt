@@ -18,16 +18,12 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(tsunami PUBLIC OpenMP::OpenMP_CXX) # Always uses openmp, because library is build with it
 endif()
 
-if(DEFINED ENV{ANOTHER_PATH_TRACER_DIR})
-    list(APPEND CMAKE_PREFIX_PATH $ENV{ANOTHER_PATH_TRACER_DIR})
-endif()
 
 find_package(APTracer REQUIRED)
 
 target_include_directories(tsunami 
     PRIVATE
         include/
-        $ENV{ANOTHER_PATH_TRACER_DIR}/include/ # Should not be needed but what do I know
 )
 
 target_link_libraries(tsunami PRIVATE APTracer)
