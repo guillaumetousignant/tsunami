@@ -23,7 +23,7 @@ find_package(APTracer REQUIRED)
 
 target_include_directories(tsunami 
     PRIVATE
-        include/
+        include
 )
 
 target_link_libraries(tsunami PRIVATE APTracer)
