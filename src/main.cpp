@@ -39,6 +39,7 @@ namespace Rendering {
 int main(int argc, char **argv){
     if (argc < 3) {
         std::cerr << "Error: input arguments with format 'mesh_file data_file'. Exiting." << std::endl;
+        return(1);
     }
     std::string mesh_file = argv[1];
 
