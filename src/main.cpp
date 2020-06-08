@@ -83,7 +83,8 @@ int main(int argc, char **argv){
     water_mesh_geometry.computeNormals(n_grid_points);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32, 1.33, 10);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 128, 1.33, 10);
+    //APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.05, 0.05, 0.05), 1000, 1, 1.33, 10);
     APTracer::Materials::NonAbsorber_t air(1.0, 0);
 
     APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
@@ -94,6 +95,9 @@ int main(int argc, char **argv){
 
     MeshUnstructured_t water_mesh(&water, &water_transform, &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, &sand_transform, &sand_mesh_geometry);
+
+    water_mesh.transformation_->translate(Vec3f(0.0, 0.0, 8000.0));
+    water_mesh.update();
 
     APTracer::Entities::TransformMatrix_t sun_transform;
 
