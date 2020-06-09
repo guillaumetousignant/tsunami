@@ -16,7 +16,7 @@
 using APTracer::Entities::Vec3f;
 
 double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry);
-void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height);
+void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height, bool close);
 void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height);
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega);
 void openGL_accumulate();
@@ -68,8 +68,8 @@ int main(int argc, char **argv){
     sand_mesh_geometry.computeNormals(n_grid_points);
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
-    extrude_farfield(&sand_mesh_geometry, 4 * max_depth);
-    extrude_farfield(&water_mesh_geometry, 2 * max_depth);
+    extrude_farfield(&sand_mesh_geometry, 4 * max_depth, true);
+    extrude_farfield(&water_mesh_geometry, 2 * max_depth, false);
     extrude_wall(&sand_mesh_geometry, -max_depth);
 
     // Setting the water height at t = 0
@@ -157,15 +157,17 @@ double get_max_depth(MeshGeometryUnstructured_t* mesh_geometry) {
     return depth;
 }
 
-void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) {
+void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height, bool close) {
     unsigned int new_n_points = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
     unsigned int new_n_elements = mesh_geometry->n_elements_ + mesh_geometry->n_farfield_ * 2;
     unsigned int new_n_normals = mesh_geometry->n_normals_ + mesh_geometry->n_farfield_;
 
     // For closing stuff
-    new_n_points += 1;
-    new_n_elements += mesh_geometry->n_farfield_;
-    new_n_normals += 1;
+    if (close) {
+        new_n_points += 1;
+        new_n_elements += mesh_geometry->n_farfield_;
+        new_n_normals += 1;
+    }
 
     // Putting back old stuff
     APTracer::Entities::Vec3f* new_points = new Vec3f[new_n_points];
@@ -232,24 +234,26 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
     new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_ - 1) + 5] = mesh_geometry->n_normals_;
 
     // Closing
-    // Making new stuff
-    new_points[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, height);
-    new_normals[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, 1.0);
+    if (close) {
+        // Making new stuff
+        new_points[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, height);
+        new_normals[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, 1.0);
 
-    // Adds one element per boundary, created with the new points
-    for (unsigned int i = 0; i < mesh_geometry->n_farfield_ - 1; ++i){
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i] = mesh_geometry->n_points_ + i;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 1] = mesh_geometry->n_points_ + i + 1;
-        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
-    }
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->n_points_ + (mesh_geometry->n_farfield_ - 1);
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_points_;
-    new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+        // Adds one element per boundary, created with the new points
+        for (unsigned int i = 0; i < mesh_geometry->n_farfield_ - 1; ++i){
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i] = mesh_geometry->n_points_ + i;
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 1] = mesh_geometry->n_points_ + i + 1;
+            new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+        }
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1)] = mesh_geometry->n_points_ + (mesh_geometry->n_farfield_ - 1);
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1) + 1] = mesh_geometry->n_points_;
+        new_elements[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * (mesh_geometry->n_farfield_ - 1) + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
 
-    for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i){
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 1] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
-        new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+        for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i){
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 1] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+            new_element_normals[3 * mesh_geometry->n_elements_ + 6 * (mesh_geometry->n_farfield_) + 3 * i + 2] = mesh_geometry->n_points_ + mesh_geometry->n_farfield_;
+        }
     }
 
     std::swap(mesh_geometry->points_, new_points);
