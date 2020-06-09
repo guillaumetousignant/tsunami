@@ -68,7 +68,7 @@ int main(int argc, char **argv){
     sand_mesh_geometry.computeNormals(n_grid_points);
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
-    
+
     extrude_farfield(&sand_mesh_geometry, 2 * max_depth, true);
     extrude_farfield(&water_mesh_geometry, 2 * max_depth, false);
     extrude_wall(&sand_mesh_geometry, -max_depth/4.0);
@@ -491,16 +491,16 @@ void openGL_accumulate() {
     Rendering::renderer->accumulate();
     auto t_end = std::chrono::high_resolution_clock::now();
 
-    /*std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
+    std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
         << std::chrono::duration<double, std::milli>(t_end-t_start).count()/1000.0 
-        << "s." << std::endl;*/
+        << "s." << std::endl;
     
     if (Rendering::renderer->imgbuffer_->updates_ == Rendering::write_interval) {
         ++Rendering::n_timestep;
         std::cout << "Timestep " << Rendering::n_timestep << ", t = " << Rendering::time << std::endl;
         std::ostringstream oss;
         oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_timestep << ".png";
-        //Rendering::renderer->camera_->write(oss.str());
+        Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
         timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::scene, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
         Rendering::renderer->camera_->transformation_->rotateZAxis(M_PI/180.0);
