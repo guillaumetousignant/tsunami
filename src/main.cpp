@@ -195,7 +195,9 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height) 
     }
 
     for (unsigned int i = 0; i < mesh_geometry->n_farfield_; ++i){
-        new_normals[i + mesh_geometry->n_normals_] = mesh_geometry->points_[mesh_geometry->farfield_[2 * i]].normalize();
+        Vec3f normal = mesh_geometry->points_[mesh_geometry->farfield_[2 * i]];
+        normal[2] = 0;
+        new_normals[i + mesh_geometry->n_normals_] = normal.normalize_inplace();
     }
 
     // Adds two elements per boundary, created with the new points
@@ -306,10 +308,13 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
             centers[j] += mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]];
         }
         centers[j] /= mesh_geometry->n_wall_[j];
+        centers[j] += Vec3f(0.0, 0.0, height);
 
         for (unsigned int i = 0; i < mesh_geometry->n_wall_[j]; ++i){
             new_points[i + mesh_geometry->n_points_ + wall_index] = mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] + Vec3f(0.0, 0.0, height);
-            new_normals[i + mesh_geometry->n_normals_ + wall_index] = (mesh_geometry->points_[mesh_geometry->walls_[j][2 * i]] - centers[j]).normalize_inplace(); 
+            Vec3f normal = new_points[i + mesh_geometry->n_points_ + wall_index] - centers[j];
+            normal[2] = 0;
+            new_normals[i + mesh_geometry->n_normals_ + wall_index] = normal.normalize_inplace(); 
         }
         wall_index += mesh_geometry->n_wall_[j];
     }
