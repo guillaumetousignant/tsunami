@@ -68,9 +68,10 @@ int main(int argc, char **argv){
     sand_mesh_geometry.computeNormals(n_grid_points);
 
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
-    extrude_farfield(&sand_mesh_geometry, 4 * max_depth, true);
+    
+    extrude_farfield(&sand_mesh_geometry, 2 * max_depth, true);
     extrude_farfield(&water_mesh_geometry, 2 * max_depth, false);
-    extrude_wall(&sand_mesh_geometry, -max_depth);
+    extrude_wall(&sand_mesh_geometry, -max_depth/4.0);
 
     // Setting the water height at t = 0
     for (unsigned int i = 0; i < n_grid_points; ++i) {
@@ -83,17 +84,23 @@ int main(int argc, char **argv){
     water_mesh_geometry.computeNormals(n_grid_points);
 
     // Render stuff
-    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000, 32, 1.33, 10);
+    APTracer::Materials::Absorber_t water_scatterer(Vec3f(0.0, 0.0, 0.0), Vec3f(0.92, 0.97, 0.99), 1000000, 2048, 1.33, 10);
     APTracer::Materials::NonAbsorber_t air(1.0, 0);
 
     APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
+    APTracer::Materials::NormalMaterial_t normal;
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
 
     MeshUnstructured_t water_mesh(&water, &water_transform, &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, &sand_transform, &sand_mesh_geometry);
+
+    water_mesh.transformation_->scale(Vec3f(1.0, 1.0, 8.0));
+    water_mesh.update();
+    sand_mesh.transformation_->scale(Vec3f(1.0, 1.0, 8.0));
+    sand_mesh.update();
 
     APTracer::Entities::TransformMatrix_t sun_transform;
 
@@ -120,9 +127,9 @@ int main(int argc, char **argv){
     std::list<Medium_t*> medium_list = {&air, &air};
     Vec3f min_sand_coord = sand_mesh.mincoord();
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
-    camera.transformation_->translate(Vec3f(0.0, 2.2 * min_sand_coord[1], 0.0));
+    camera.transformation_->translate(Vec3f(0.0, 2.0 * min_sand_coord[1], 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
-    camera.transformation_->translate(Vec3f(0.0, 0.0, -2500.0));
+    camera.transformation_->translate(Vec3f(0.0, 0.0, min_sand_coord[1]/2.0));
     camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * M_PI/180.0);
     camera.update();
 
@@ -484,16 +491,16 @@ void openGL_accumulate() {
     Rendering::renderer->accumulate();
     auto t_end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
+    /*std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
         << std::chrono::duration<double, std::milli>(t_end-t_start).count()/1000.0 
-        << "s." << std::endl;
+        << "s." << std::endl;*/
     
     if (Rendering::renderer->imgbuffer_->updates_ == Rendering::write_interval) {
         ++Rendering::n_timestep;
         std::cout << "Timestep " << Rendering::n_timestep << ", t = " << Rendering::time << std::endl;
         std::ostringstream oss;
         oss << "images/image_"<< std::setfill('0') << std::setw(4) << Rendering::n_timestep << ".png";
-        Rendering::renderer->camera_->write(oss.str());
+        //Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
         timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::scene, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
         Rendering::renderer->camera_->transformation_->rotateZAxis(M_PI/180.0);
