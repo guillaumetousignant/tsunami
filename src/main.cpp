@@ -128,7 +128,7 @@ int main(int argc, char **argv){
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
     camera.transformation_->translate(Vec3f(0.0, 2.0 * min_sand_coord[1], 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
-    camera.transformation_->translate(Vec3f(0.0, 0.0, -125000.0));
+    camera.transformation_->translate(Vec3f(0.0, 0.0, min_sand_coord[1]/2.0));
     camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * M_PI/180.0);
     camera.update();
 
