@@ -233,7 +233,7 @@ void extrude_farfield(MeshGeometryUnstructured_t* mesh_geometry, double height, 
     if (close) {
         // Making new stuff
         new_points[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, height);
-        new_normals[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, 1.0);
+        new_normals[mesh_geometry->n_points_ + mesh_geometry->n_farfield_] = Vec3f(0.0, 0.0, -1.0);
 
         // Adds one element per boundary, created with the new points
         for (unsigned int i = 0; i < mesh_geometry->n_farfield_ - 1; ++i){
