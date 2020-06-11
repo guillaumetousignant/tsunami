@@ -89,7 +89,6 @@ int main(int argc, char **argv){
 
     APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
-    APTracer::Materials::NormalMaterial_t normal;
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
