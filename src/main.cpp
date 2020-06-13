@@ -25,6 +25,7 @@ namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
     double time = 0.0;
     double delta_time = 10.0;
+    double angle_step = M_PI/720.0; // 0.25 deg
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::Scene_t* scene = nullptr;
@@ -129,7 +130,7 @@ int main(int argc, char **argv){
     camera.transformation_->translate(Vec3f(0.0, 2.0 * min_sand_coord[1], 0.0));
     camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
     camera.transformation_->translate(Vec3f(0.0, 0.0, min_sand_coord[1]/2.0));
-    camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * M_PI/180.0);
+    camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * Rendering::angle_step);
     camera.update();
 
     scene.build_acc();
@@ -502,7 +503,7 @@ void openGL_accumulate() {
         Rendering::renderer->camera_->write(oss.str());
         Rendering::time += Rendering::delta_time;
         timestep(Rendering::mesh_geometry, Rendering::mesh, Rendering::scene, Rendering::etas, Rendering::n_points, Rendering::time, Rendering::omegas);
-        Rendering::renderer->camera_->transformation_->rotateZAxis(M_PI/180.0);
+        Rendering::renderer->camera_->transformation_->rotateZAxis(Rendering::angle_step);
         Rendering::renderer->camera_->update();
         Rendering::renderer->resetDisplay();
     }  
