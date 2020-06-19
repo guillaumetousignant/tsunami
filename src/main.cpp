@@ -23,8 +23,9 @@ void openGL_accumulate();
 
 namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
-    double time = 0.0;
+    unsigned int n_timestep = 0;
     double delta_time = 10.0;
+    double time = n_timestep * delta_time;
     double angle_step = M_PI/720.0; // 0.25 deg
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
@@ -32,7 +33,6 @@ namespace Rendering {
     std::vector<std::vector<std::complex<double>>> etas;
     unsigned int n_points = 0;
     std::vector<double> omegas;
-    unsigned int n_timestep = 0;
     unsigned int write_interval = 1000;
 }
 
