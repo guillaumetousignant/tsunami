@@ -78,7 +78,7 @@ int main(int argc, char **argv){
     for (unsigned int i = 0; i < n_grid_points; ++i) {
         water_mesh_geometry.points_[i][2] = 0.0;
         for (unsigned int j = 0; j < etas.size(); ++j) {
-            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * 0.0));
+            water_mesh_geometry.points_[i][2] += std::real(etas[j][i] * std::exp(std::complex<double>(0.0, -1.0) * omegas[j] * Rendering::time));
         }
     }
 
