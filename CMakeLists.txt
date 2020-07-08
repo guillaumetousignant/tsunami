@@ -29,6 +29,7 @@ target_include_directories(tsunami
 target_link_libraries(tsunami PRIVATE APTracer::APTracer)
 
 target_compile_features(tsunami PRIVATE cxx_std_11)
+set_property(TARGET tsunami PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 
 option(BUILD_TESTS "Build all tests." OFF)
 
