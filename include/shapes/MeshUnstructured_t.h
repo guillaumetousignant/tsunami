@@ -19,7 +19,7 @@ using APTracer::Entities::Shape_t;
 class MeshUnstructured_t {
     public:
         MeshUnstructured_t(Material_t *material, TransformMatrix_t *transform_matrix, MeshGeometryUnstructured_t* geom);
-        virtual ~MeshUnstructured_t() final;
+        virtual ~MeshUnstructured_t();
 
         Material_t *material_;
         TransformMatrix_t *transformation_;
@@ -30,6 +30,6 @@ class MeshUnstructured_t {
         virtual void update();
         virtual Vec3f mincoord() const;
         virtual Vec3f maxcoord() const;
-        virtual void createTriangles() final;
+        virtual void createTriangles();
 };
 #endif
