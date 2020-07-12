@@ -139,6 +139,7 @@ int main(int argc, char **argv){
     Rendering::renderer = &opengl_renderer;
     // We need to overload the render function with our own to apply movement etc
     opengl_renderer.render_function_ = openGL_accumulate;
+    opengl_renderer.focus_point_ = Vec3f(0.0, 0.0, min_sand_coord[1]/2.0);
     Rendering::mesh_geometry = &water_mesh_geometry;
     Rendering::mesh = &water_mesh;
     Rendering::scene = &scene;
