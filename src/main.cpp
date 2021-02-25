@@ -93,12 +93,13 @@ int main(int argc, char **argv){
     APTracer::Materials::NonAbsorber_t air(1.0, 0);
 
     APTracer::Materials::ReflectiveRefractive_t water(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), &water_scatterer);
+    APTracer::Materials::NormalMaterial_t normal_material;
     APTracer::Materials::Diffuse_t sand(Vec3f(0.0, 0.0, 0.0), Vec3f(1.0, 0.9217, 0.7098), 1.0);
 
     APTracer::Entities::TransformMatrix_t water_transform;
     APTracer::Entities::TransformMatrix_t sand_transform;
 
-    MeshUnstructured_t water_mesh(&water, &water_transform, &water_mesh_geometry);
+    MeshUnstructured_t water_mesh(&normal_material, &water_transform, &water_mesh_geometry);
     MeshUnstructured_t sand_mesh(&sand, &sand_transform, &sand_mesh_geometry);
 
     water_mesh.transformation_->scale(Vec3f(1.0, 1.0, 8.0));
@@ -496,11 +497,11 @@ void openGL_accumulate() {
     Rendering::renderer->accumulate();
     auto t_end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
+    /*std::cout << "Iteration " << Rendering::renderer->imgbuffer_->updates_ << " done in " 
         << std::chrono::duration<double, std::milli>(t_end - t_start).count()/1000.0 
-        << "s." << std::endl;
+        << "s." << std::endl;*/
     
-    if (Rendering::renderer->imgbuffer_->updates_ == Rendering::write_interval) {
+    /*if (Rendering::renderer->imgbuffer_->updates_ == Rendering::write_interval) {
         ++Rendering::n_timestep;
         std::cout << "Timestep " << Rendering::n_timestep << ", t = " << Rendering::time << std::endl;
         std::ostringstream oss;
@@ -522,5 +523,5 @@ void openGL_accumulate() {
         std::cout << "\tUpdating done in " 
             << std::chrono::duration<double, std::milli>(t_step_end - t_step_start).count()/1000.0 
             << "s." << std::endl;
-    }  
+    }*/ 
 }
