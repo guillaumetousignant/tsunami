@@ -121,7 +121,7 @@ int main(int argc, char **argv){
 
     APTracer::Entities::Scene_t scene;
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);
-    scene.add(sand_mesh.triangles_, sand_mesh.n_tris_);
+    //scene.add(sand_mesh.triangles_, sand_mesh.n_tris_);
 
     APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1920, 1080);
 
