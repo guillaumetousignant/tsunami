@@ -1,6 +1,6 @@
 #include "shapes/TriangleUnstructured_t.h"
-#include <another_path_tracer/entities/TransformMatrix_t.h>
-#include <another_path_tracer/entities/Material_t.h>
+#include <entities/TransformMatrix_t.h>
+#include <entities/Material_t.h>
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -43,7 +43,7 @@ void TriangleUnstructured_t::update() {
     v0v2_ = points_[2] - points_[0];
 }
 
-bool TriangleUnstructured_t::intersection(const APTracer::Entities::Ray_t &ray, double &t, double (&uv)[2]) const {
+bool TriangleUnstructured_t::intersection(const Ray_t &ray, double &t, std::array<double, 2> &uv) const {
     const Vec3f pvec = ray.direction_.cross(v0v2_);
     const double det = v0v1_.dot(pvec);
 
@@ -84,7 +84,7 @@ bool TriangleUnstructured_t::intersection(const APTracer::Entities::Ray_t &ray, 
     return true;
 }
 
-Vec3f TriangleUnstructured_t::normaluv(double time, const double (&uv)[2], double (&tuv)[2]) const {
+Vec3f TriangleUnstructured_t::normaluv(double time, std::array<double, 2> uv, std::array<double, 2> &tuv) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
 
     // Matrix multiplication, optimise.
@@ -96,7 +96,7 @@ Vec3f TriangleUnstructured_t::normaluv(double time, const double (&uv)[2], doubl
         distance[0] * normals_[0][2] + distance[1] * normals_[1][2] + distance[2] * normals_[2][2]);
 }
 
-Vec3f TriangleUnstructured_t::normal(double time, const double (&uv)[2]) const {
+Vec3f TriangleUnstructured_t::normal(double time, std::array<double, 2> uv) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
     return Vec3f(distance[0] * normals_[0][0] + distance[1] * normals_[1][0] + distance[2] * normals_[2][0], 
         distance[0] * normals_[0][1] + distance[1] * normals_[1][1] + distance[2] * normals_[2][1],
@@ -104,7 +104,7 @@ Vec3f TriangleUnstructured_t::normal(double time, const double (&uv)[2]) const {
     // Matrix multiplication, optimise.
 }
 
-Vec3f TriangleUnstructured_t::normal_uv_tangent(double time, const double (&uv)[2], double (&tuv)[2], Vec3f &tangentvec) const {
+Vec3f TriangleUnstructured_t::normal_uv_tangent(double time, std::array<double, 2> uv, std::array<double, 2> &tuv, Vec3f &tangentvec) const {
     const Vec3f distance = Vec3f(1.0 - uv[0] - uv[1], uv[0], uv[1]);
     
     tuv[0] = 0.0; // Not used

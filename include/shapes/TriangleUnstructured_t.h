@@ -1,9 +1,9 @@
 #ifndef TRIANGLEUNSTRUCTURED_T_H
 #define TRIANGLEUNSTRUCTURED_T_H
 
-#include <another_path_tracer/entities/Ray_t.h>
-#include <another_path_tracer/entities/Vec3f.h>
-#include <another_path_tracer/entities/Shape_t.h>
+#include <entities/Ray_t.h>
+#include <entities/Vec3f.h>
+#include <entities/Shape_t.h>
 
 namespace APTracer { namespace Entities {
     class TransformMatrix_t;
@@ -31,10 +31,10 @@ class TriangleUnstructured_t final : public Shape_t{
         unsigned int index_;
 
         virtual void update() final;
-        virtual bool intersection(const Ray_t &ray, double &t, double (&uv)[2]) const final; 
-        virtual Vec3f normaluv(double time, const double (&uv)[2], double (&tuv)[2]) const final;
-        virtual Vec3f normal(double time, const double (&uv)[2]) const final;
-        virtual Vec3f normal_uv_tangent(double time, const double (&uv)[2], double (&tuv)[2], Vec3f &tangentvec) const final;
+        virtual bool intersection(const Ray_t &ray, double &t, std::array<double, 2> &uv) const final; 
+        virtual Vec3f normaluv(double time, std::array<double, 2> uv, std::array<double, 2> &tuv) const final;
+        virtual Vec3f normal(double time, std::array<double, 2> uv) const final;
+        virtual Vec3f normal_uv_tangent(double time, std::array<double, 2> uv, std::array<double, 2> &tuv, Vec3f &tangentvec) const final;
         virtual Vec3f normal_face(double time) const final;
         virtual Vec3f mincoord() const final;
         virtual Vec3f maxcoord() const final;

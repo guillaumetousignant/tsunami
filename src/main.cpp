@@ -1,7 +1,7 @@
-#include <another_path_tracer/another_path_tracer.h>
+#include <another_path_tracer.h>
 #include "entities/MeshGeometryUnstructured_t.h"
 #include "shapes/MeshUnstructured_t.h"
-#include <another_path_tracer/entities/RandomGenerator_t.h>
+#include <entities/RandomGenerator_t.h>
 
 #include <limits>
 #include <cmath>
@@ -12,6 +12,7 @@
 #include <complex>
 #include <iomanip>
 #include <chrono>
+#include <array>
 
 using APTracer::Entities::Vec3f;
 
@@ -21,12 +22,14 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height);
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega);
 void openGL_accumulate();
 
+constexpr double pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286;
+
 namespace Rendering {
     APTracer::Entities::OpenGLRenderer_t* renderer = nullptr;
     unsigned int n_timestep = 0;
     double delta_time = 10.0;
     double time = n_timestep * delta_time;
-    double angle_step = M_PI/720.0; // 0.25 deg
+    double angle_step = pi/720.0; // 0.25 deg
     MeshGeometryUnstructured_t* mesh_geometry = nullptr;
     MeshUnstructured_t* mesh = nullptr;
     APTracer::Entities::Scene_t* scene = nullptr;
@@ -112,7 +115,7 @@ int main(int argc, char **argv){
 
     APTracer::Entities::Texture_t background("assets/background.jpg");
     //APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
-    double sun_pos[2] = {0.62093, 0.77075};
+    const std::array<double, 2> sun_pos {0.62093, 0.77075};
     APTracer::Skyboxes::SkyboxTextureSun_t sky(&background, sun_pos, Vec3f(12.6373, 11.9395, 11.6477)*4, 0.035);
 
     APTracer::Entities::Scene_t scene;
@@ -122,15 +125,15 @@ int main(int argc, char **argv){
     APTracer::Entities::ImgBufferOpenGL_t imgbuffer(1920, 1080);
 
     APTracer::Entities::TransformMatrix_t camera_transform;
-    double fov[2] = {9.0/16.0 * 80.0 * M_PI/180.0, 80.0 * M_PI/180.0};
-    unsigned int subpix[2] = {1, 1};
+    const std::array<double, 2> fov {9.0/16.0 * 80.0 * pi/180.0, 80.0 * pi/180.0};
+    const std::array<unsigned int, 2> subpix {1, 1};
     std::list<Medium_t*> medium_list = {&air, &air};
     Vec3f min_sand_coord = sand_mesh.mincoord();
     APTracer::Cameras::Cam_t camera(&camera_transform, "images/output.png", Vec3f(0.0, 0.0, 1.0), fov, subpix, &imgbuffer, medium_list, &sky, 16, 1.0);
     camera.transformation_->translate(Vec3f(0.0, 2.0 * min_sand_coord[1], 0.0));
-    camera.transformation_->rotateXAxis(-30.0 * M_PI/180);
+    camera.transformation_->rotateXAxis(-30.0 * pi/180);
     camera.transformation_->translate(Vec3f(0.0, 0.0, min_sand_coord[1]/2.0));
-    camera.transformation_->rotateZAxis(M_PI + Rendering::n_timestep * Rendering::angle_step);
+    camera.transformation_->rotateZAxis(pi + Rendering::n_timestep * Rendering::angle_step);
     camera.update();
 
     scene.build_acc();
@@ -417,7 +420,7 @@ void extrude_wall(MeshGeometryUnstructured_t* mesh_geometry, double height) {
 std::vector<std::complex<double>> get_eta(std::string filename, double &amplitude, double &omega) {
     std::string line;
     std::string token;
-    double n_points;
+    size_t n_points;
 
     std::ifstream meshfile(filename);
     if (!meshfile.is_open()) {
