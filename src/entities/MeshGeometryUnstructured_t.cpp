@@ -260,35 +260,35 @@ void MeshGeometryUnstructured_t::computeNormals(unsigned int n_points) {
 }
 
 void MeshGeometryUnstructured_t::verify() {
-    std::cout << "Tere are " << n_points_ << " points:" << std::endl;
+    std::cout << "There are " << n_points_ << " points:" << std::endl;
     for (unsigned int i = 0; i < n_points_; ++i) {
         std::cout << "    " << i << "    " << points_[i] << std::endl;
     }
 
-    std::cout << std::endl << "Tere are " << n_elements_ << " elements, with points:" << std::endl;
+    std::cout << std::endl << "There are " << n_elements_ << " elements, with points:" << std::endl;
     for (unsigned int i = 0; i < n_elements_; ++i) {
         std::cout << "    " << i << "    " << elements_[3 * i] << "    " << elements_[3 * i + 1] << "    " << elements_[3 * i + 2] << std::endl;
     }
 
-    std::cout << std::endl << "Tere are " << n_walls_ << " walls." << std::endl;
+    std::cout << std::endl << "There are " << n_walls_ << " walls." << std::endl;
     for (unsigned int j = 0; j < n_walls_; ++j) {
-        std::cout << std::endl << "    Tere are " << n_wall_[j] << " wall elements in wall " << j << ", with points:" << std::endl;
+        std::cout << std::endl << "    There are " << n_wall_[j] << " wall elements in wall " << j << ", with points:" << std::endl;
         for (unsigned int i = 0; i < n_wall_[j]; ++i) {
             std::cout << "        " << i << "    " << walls_[j][2 * i] << "    " << walls_[j][2 * i + 1] << std::endl;
         }
     }
 
-    std::cout << std::endl << "Tere are " << n_farfield_ << " farfield elements, with points:" << std::endl;
+    std::cout << std::endl << "There are " << n_farfield_ << " farfield elements, with points:" << std::endl;
     for (unsigned int i = 0; i < n_farfield_; ++i) {
         std::cout << "    " << i << "    " << farfield_[2 * i] << "    " << farfield_[2 * i + 1] << std::endl;
     }
 
-    std::cout << "Tere are " << n_normals_ << " normals:" << std::endl;
+    std::cout << "There are " << n_normals_ << " normals:" << std::endl;
     for (unsigned int i = 0; i < n_normals_; ++i) {
         std::cout << "    " << i << "    " << normals_[i] << std::endl;
     }
 
-    std::cout << std::endl << "Tere are " << n_elements_ << " elements, with normals:" << std::endl;
+    std::cout << std::endl << "There are " << n_elements_ << " elements, with normals:" << std::endl;
     for (unsigned int i = 0; i < n_elements_; ++i) {
         std::cout << "    " << i << "    " << element_normals_[3 * i] << "    " << element_normals_[3 * i + 1] << "    " << element_normals_[3 * i + 2] << std::endl;
     }
