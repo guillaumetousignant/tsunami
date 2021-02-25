@@ -10,7 +10,8 @@ add_executable(tsunami
     src/main.cpp
     src/entities/MeshGeometryUnstructured_t.cpp
     src/shapes/MeshUnstructured_t.cpp
-    src/shapes/TriangleUnstructured_t.cpp)
+    src/shapes/TriangleUnstructured_t.cpp
+    src/cameras/CamIndex_t.cpp)
 
 find_package(OpenMP)
 
