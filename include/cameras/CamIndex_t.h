@@ -3,6 +3,7 @@
 
 #include <entities/Camera_t.h>
 #include <entities/Vec3f.h>
+#include <materials/Toon_t.h>
 #include <string>
 #include <list>
 #include <random>
@@ -59,6 +60,7 @@ namespace APTracer { namespace Cameras {
 
             ImgBuffer_t* image_; /**< @brief Image buffer into which the image is stored.*/
             std::uniform_real_distribution<double> unif_; /**< @brief Uniform random distribution used for generating random numbers.*/
+            APTracer::Materials::Toon_t* clic_material_;
 
             /**
              * @brief Updates the camera's members.

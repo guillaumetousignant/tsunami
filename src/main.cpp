@@ -75,7 +75,7 @@ int main(int argc, char **argv){
     double max_depth = get_max_depth(&sand_mesh_geometry); // Is negative
 
     extrude_farfield(&sand_mesh_geometry, 2 * max_depth, true);
-    extrude_farfield(&water_mesh_geometry, 2 * max_depth, false);
+    //extrude_farfield(&water_mesh_geometry, 2 * max_depth, false);
     extrude_wall(&sand_mesh_geometry, -max_depth/4.0);
 
     // Setting the water height at t = 0
@@ -116,9 +116,9 @@ int main(int argc, char **argv){
     sun.update();
 
     APTracer::Entities::Texture_t background("assets/background.jpg");
-    //APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
     const std::array<double, 2> sun_pos {0.62093, 0.77075};
-    APTracer::Skyboxes::SkyboxTextureSun_t sky(&background, sun_pos, Vec3f(12.6373, 11.9395, 11.6477)*4, 0.035);
+    APTracer::Skyboxes::SkyboxFlatSun_t sky(Vec3f(0.9020, 0.9725, 1.0), &sun);
+    //APTracer::Skyboxes::SkyboxTextureSun_t sky(&background, sun_pos, Vec3f(12.6373, 11.9395, 11.6477)*4, 0.035);
 
     APTracer::Entities::Scene_t scene;
     scene.add(water_mesh.triangles_, water_mesh.n_tris_);

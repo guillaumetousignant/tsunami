@@ -19,9 +19,11 @@ using APTracer::Entities::Skybox_t;
 using APTracer::Entities::Scene_t;
 
 CamIndex_t::CamIndex_t(TransformMatrix_t* transformation, const std::string &filename, Vec3f up, std::array<double, 2> fov, std::array<unsigned int, 2> subpix, ImgBuffer_t* image, std::list<Medium_t*> medium_list, Skybox_t* skybox, unsigned int max_bounces, double gammaind) 
-    : Camera_t(transformation, filename, up, fov, subpix, std::move(medium_list), skybox, max_bounces, gammaind), image_(image), unif_(0.0, 1.0) {}
+    : Camera_t(transformation, filename, up, fov, subpix, std::move(medium_list), skybox, max_bounces, gammaind), image_(image), unif_(0.0, 1.0), clic_material_(new APTracer::Materials::Toon_t(Vec3f(1.0, 0.0, 0.0))) {}
 
-CamIndex_t::~CamIndex_t() = default;
+CamIndex_t::~CamIndex_t() {
+    delete clic_material_;
+}
 
 void CamIndex_t::update() {
     origin_ = transformation_->multVec(Vec3f());
@@ -89,15 +91,16 @@ void CamIndex_t::autoFocus(const Scene_t* scene, std::array<double, 2> position)
     double t = std::numeric_limits<double>::infinity();
     std::array<double, 2> uv;
 
-    const Vec3f horizontal = direction_.cross(up_);
-    const Vec3f vertical = horizontal.cross(direction_);
+    const Vec3f horizontal = direction_.cross(up_).normalize_inplace();
+    const Vec3f vertical = horizontal.cross(direction_).normalize_inplace();
 
     const Vec3f ray_direction_sph = Vec3f(1.0, pi/2.0 + (position[1]-0.5)*fov_[0], (position[0]-0.5)*fov_[1]).to_xyz_offset(direction_, horizontal, vertical); // 0, y, x
 
     const Ray_t focus_ray = Ray_t(origin_, ray_direction_sph, Vec3f(), Vec3f(1.0), medium_list_);
 
-    const TriangleUnstructured_t* hit_triangle = dynamic_cast<TriangleUnstructured_t*>(scene->intersect(focus_ray, t, uv));
+    TriangleUnstructured_t* hit_triangle = dynamic_cast<TriangleUnstructured_t*>(scene->intersect(focus_ray, t, uv));
     if (hit_triangle != nullptr) {
         std::cout << hit_triangle->index_ << std::endl;
+        hit_triangle->material_ = clic_material_;
     }
 }
